@@ -1,0 +1,68 @@
+version: '3'
+
+services:
+  etcd:
+    image: quay.io/coreos/etcd:v3.5.10
+    container_name: etcd
+    ports:
+      - "3379:2379"
+      - "3380:2380"
+    environment:
+      - ETCD_LISTEN_CLIENT_URLS=http://0.0.0.0:2379
+      - ETCD_ADVERTISE_CLIENT_URLS=http://etcd:2379
+    volumes:
+      - ./components/etcd/data:/etcd-data
+    command:
+      - /usr/local/bin/etcd
+      - --data-dir=/etcd-data
+      - --name=etcd
+    networks:
+      easy-chat:
+
+  redis:
+    image: swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/redis:7.2-alpine
+    ports:
+      - 16379:6379
+    container_name: redis
+    volumes:
+      - ./components/redis/data:/data
+      # - ./components/redis/config/redis.conf:/usr/local/redis/config/redis.conf
+    environment:
+      TZ: Asia/Shanghai
+    restart: always
+    networks:
+      easy-chat:
+    command: redis-server --requirepass 1234 --appendonly yes
+
+  mysql:
+    image: swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/mysql:8.0
+    ports:
+      - 13306:3306
+    container_name: mysql
+    volumes:
+      - ./components/mysql/data:/var/lib/mysql
+      - /etc/localtime:/etc/localtime
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+    restart: always
+    networks:
+      easy-chat:
+
+  user-rpc:
+    image: crpi-hej3i56qxeb503xt.cn-hangzhou.personal.cr.aliyuncs.com/easy-chat7/user-rpc-dev:latest
+    container_name: user-rpc
+    ports:
+      - "18080:8080"
+    depends_on:
+      - etcd
+      - mysql
+      - redis
+    environment:
+      TZ: Asia/Shanghai
+    restart: always
+    networks:
+      easy-chat:
+
+networks:
+  easy-chat:
+    driver: bridge
