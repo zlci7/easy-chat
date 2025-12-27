@@ -1,0 +1,62 @@
+# 编译产物
+bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Go 相关
+go.work
+vendor/
+*.sum
+
+# IDE 相关
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# 环境变量和敏感配置
+.env
+.env.local
+.env.*.local
+*-local.yaml
+secrets/
+
+# 数据库和缓存数据（重要！）
+components/mysql/data/
+components/redis/data/
+components/etcd/data/
+components/etcd/logs/
+*.log
+logs/
+
+# Docker 相关（可选，看团队需求）
+# docker-compose.override.yml
+
+# 临时文件
+tmp/
+temp/
+*.tmp
+*.cache
+
+# 操作系统相关
+.DS_Store
+Thumbs.db
+
+# 测试覆盖率
+coverage.txt
+coverage.html
+*.cover
+
+# 依赖管理
+go.sum
+
+# 本地配置（不要提交密码等敏感信息）
+# 如果配置文件中包含密码，请使用环境变量或 secrets 管理
+
