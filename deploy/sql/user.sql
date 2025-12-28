@@ -1,5 +1,5 @@
 CREATE TABLE `user` (
-    `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '用户ID',
+    `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '用户ID',
     `mobile` varchar(20) NOT NULL DEFAULT '' COMMENT '手机号',
     `password` varchar(128) NOT NULL DEFAULT '' COMMENT '加密后的密码',
     `nickname` varchar(255) NOT NULL DEFAULT '' COMMENT '昵称',

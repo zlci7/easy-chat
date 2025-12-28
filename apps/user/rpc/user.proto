@@ -29,8 +29,9 @@ message LoginReq {
 }
 
 message LoginResp {
-  string Token = 1;
-  int64 expire = 2;
+  int64 id = 1;         // 用户ID
+  string nickname = 2;  // 昵称
+  string avatar = 3;    // 头像
 }
 
 message RegisterReq{

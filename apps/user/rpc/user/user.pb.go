@@ -249,8 +249,9 @@ func (x *LoginReq) GetPassword() string {
 
 type LoginResp struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Token         string                 `protobuf:"bytes,1,opt,name=Token,proto3" json:"Token,omitempty"`
-	Expire        int64                  `protobuf:"varint,2,opt,name=expire,proto3" json:"expire,omitempty"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`            // 用户ID
+	Nickname      string                 `protobuf:"bytes,2,opt,name=nickname,proto3" json:"nickname,omitempty"` // 昵称
+	Avatar        string                 `protobuf:"bytes,3,opt,name=avatar,proto3" json:"avatar,omitempty"`     // 头像
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -285,18 +286,25 @@ func (*LoginResp) Descriptor() ([]byte, []int) {
 	return file_user_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *LoginResp) GetToken() string {
+func (x *LoginResp) GetId() int64 {
 	if x != nil {
-		return x.Token
+		return x.Id
+	}
+	return 0
+}
+
+func (x *LoginResp) GetNickname() string {
+	if x != nil {
+		return x.Nickname
 	}
 	return ""
 }
 
-func (x *LoginResp) GetExpire() int64 {
+func (x *LoginResp) GetAvatar() string {
 	if x != nil {
-		return x.Expire
+		return x.Avatar
 	}
-	return 0
+	return ""
 }
 
 type RegisterReq struct {
@@ -631,10 +639,11 @@ const file_user_proto_rawDesc = "" +
 	"\x04pong\x18\x01 \x01(\tR\x04pong\"<\n" +
 	"\bLoginReq\x12\x14\n" +
 	"\x05phone\x18\x01 \x01(\tR\x05phone\x12\x1a\n" +
-	"\bpassword\x18\x02 \x01(\tR\bpassword\"9\n" +
-	"\tLoginResp\x12\x14\n" +
-	"\x05Token\x18\x01 \x01(\tR\x05Token\x12\x16\n" +
-	"\x06expire\x18\x02 \x01(\x03R\x06expire\"\x85\x01\n" +
+	"\bpassword\x18\x02 \x01(\tR\bpassword\"O\n" +
+	"\tLoginResp\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x1a\n" +
+	"\bnickname\x18\x02 \x01(\tR\bnickname\x12\x16\n" +
+	"\x06avatar\x18\x03 \x01(\tR\x06avatar\"\x85\x01\n" +
 	"\vRegisterReq\x12\x14\n" +
 	"\x05phone\x18\x01 \x01(\tR\x05phone\x12\x1a\n" +
 	"\bnickname\x18\x02 \x01(\tR\bnickname\x12\x1a\n" +

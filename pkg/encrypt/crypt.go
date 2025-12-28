@@ -13,6 +13,6 @@ func EncryptPassword(password string) (string, error) {
 
 // 校验密码是否正确
 func ValidatePassword(password, hashedPassword string) bool {
-	err := bcrypt.CompareHashAndPassword([]byte(password), []byte(hashedPassword))
+	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 	return err == nil
 }
