@@ -2,11 +2,11 @@ package logic
 
 import (
 	"context"
-	"errors"
 
 	"easy-chat/apps/user/rpc/internal/svc"
 	"easy-chat/apps/user/rpc/user"
 	"easy-chat/pkg/encrypt"
+	"easy-chat/pkg/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -30,12 +30,12 @@ func (l *LoginLogic) Login(in *user.LoginReq) (*user.LoginResp, error) {
 	userInfo, err := l.svcCtx.UserModel.FindOneByMobile(l.ctx, in.Phone)
 	//用户不存在
 	if err != nil {
-		return nil, errors.New("用户不存在")
+		return nil, xerr.NewErrCode(xerr.USER_NOT_FOUND)
 	}
 
 	// 2、比对：用 bcrypt 比对输入密码和数据库密文。
 	if !encrypt.ValidatePassword(in.Password, userInfo.Password) {
-		return nil, errors.New("密码错误")
+		return nil, xerr.NewErrCode(xerr.USER_PASSWORD_ERROR)
 	}
 
 	// 3、返回：返回用户的 ID 和基本信息。

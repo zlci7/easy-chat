@@ -2,16 +2,14 @@ package logic
 
 import (
 	"context"
-	"errors"
 
 	"easy-chat/apps/user/models"
 	"easy-chat/apps/user/rpc/internal/svc"
 	"easy-chat/apps/user/rpc/user"
 	"easy-chat/pkg/encrypt"
+	"easy-chat/pkg/xerr"
 
 	"github.com/zeromicro/go-zero/core/logx"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 type RegisterLogic struct {
@@ -34,17 +32,17 @@ func (l *RegisterLogic) Register(in *user.RegisterReq) (*user.RegisterResp, erro
 	u, err := l.svcCtx.UserModel.FindOneByMobile(l.ctx, in.Phone)
 	//用户已注册
 	if err == nil && u != nil {
-		return nil, status.Error(codes.AlreadyExists, "用户已注册")
+		return nil, xerr.NewErrCode(xerr.USER_ALREADY_EXISTS)
 	}
 	//如果err不是用户不存在，则返回错误
 	if err != nil && err != models.ErrNotFound {
-		return nil, err
+		return nil, xerr.NewErrCode(xerr.DB_ERROR)
 	}
 
 	// 2. 加密：把明文密码变成哈希值。
 	hashedPassword, err := encrypt.EncryptPassword(in.Password)
 	if err != nil {
-		return nil, status.Error(codes.Internal, "密码加密失败")
+		return nil, xerr.NewErrCode(xerr.USER_ENCRYPT_ERROR)
 	}
 	// 3. 入库：保存到 MySQL。
 	newUser := &models.User{
@@ -58,12 +56,12 @@ func (l *RegisterLogic) Register(in *user.RegisterReq) (*user.RegisterResp, erro
 	//将User对象写入mysql
 	res, err := l.svcCtx.UserModel.Insert(l.ctx, newUser)
 	if err != nil {
-		return nil, errors.New("用户保存失败")
+		return nil, xerr.NewErrCode(xerr.USER_SAVE_ERROR)
 	}
 	//获取用户新id
 	userId, err := res.LastInsertId()
 	if err != nil {
-		return nil, errors.New("用户id获取失败")
+		return nil, xerr.NewErrCode(xerr.USER_ID_GET_ERROR)
 	}
 	//返回id，不签发token，api去做
 	return &user.RegisterResp{
