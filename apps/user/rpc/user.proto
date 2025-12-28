@@ -42,8 +42,7 @@ message RegisterReq{
 }
 
 message RegisterResp {
-  string Token = 1;
-  int64 expire = 2;
+  int64 userId = 1;  // 只返回用户ID，token由API层处理
 }
 
 message GetUserInfoReq {
