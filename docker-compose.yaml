@@ -48,20 +48,22 @@ services:
     networks:
       easy-chat:
 
-  user-rpc:
-    image: crpi-hej3i56qxeb503xt.cn-hangzhou.personal.cr.aliyuncs.com/easy-chat7/user-rpc-dev:latest
-    container_name: user-rpc
-    ports:
-      - "18080:8080"
-    depends_on:
-      - etcd
-      - mysql
-      - redis
-    environment:
-      TZ: Asia/Shanghai
-    restart: always
-    networks:
-      easy-chat:
+  # 开发模式：注释掉 user-rpc，使用本地运行
+  # 部署模式：取消注释以下配置
+  # user-rpc:
+  #   image: crpi-hej3i56qxeb503xt.cn-hangzhou.personal.cr.aliyuncs.com/easy-chat7/user-rpc-dev:latest
+  #   container_name: user-rpc
+  #   ports:
+  #     - "18080:8080"
+  #   depends_on:
+  #     - etcd
+  #     - mysql
+  #     - redis
+  #   environment:
+  #     TZ: Asia/Shanghai
+  #   restart: always
+  #   networks:
+  #     easy-chat:
 
 networks:
   easy-chat:

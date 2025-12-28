@@ -15,20 +15,33 @@
 
 ## 快速开始
 
-### 1. 克隆项目
-```bash
-git clone <your-repo-url>
-cd easy-chat
-```
+### 开发模式（推荐）
 
-### 2. 启动服务
+**1. 启动基础设施服务**
 ```bash
 docker-compose up -d
 ```
 
-### 3. 查看状态
+**2. 本地运行 user-rpc 服务**
 ```bash
-docker-compose ps
+go run apps/user/rpc/user.go -f apps/user/rpc/etc/user.yaml
+```
+
+**3. 修改配置连接本地基础设施**
+
+确保 `apps/user/rpc/etc/user.yaml` 配置：
+```yaml
+Etcd:
+  Hosts:
+  - 127.0.0.1:3379  # 本地 Docker 端口
+```
+
+### 部署模式
+
+**一键启动所有服务（包括应用）**
+```bash
+# 取消注释 docker-compose.yaml 中的 user-rpc 配置
+docker-compose up -d
 ```
 
 ## 服务端口
