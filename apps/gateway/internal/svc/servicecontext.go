@@ -22,11 +22,16 @@ type ServiceContext struct {
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
+	connmgr := server.NewConnectionManager()
+
+	subscriber := server.NewSubscriber(c.Redis, connmgr)
+	subscriber.Start()
+
 	return &ServiceContext{
 		Config: c,
 
 		//初始化连接管理器
-		ConnMgr: server.NewConnectionManager(),
+		ConnMgr: connmgr,
 
 		// 初始化 UserRpc 客户端（这里会从 Etcd 发现服务）
 		UserRpc: userclient.NewUser(zrpc.MustNewClient(c.UserRpc)),
