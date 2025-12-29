@@ -1,0 +1,29 @@
+type (
+	// 定义注册请求
+	RegisterReq {
+		Phone    string `json:"phone"`
+		Password string `json:"password"`
+		Nickname string `json:"nickname"`
+	}
+	RegisterResp {
+		UserId int64 `json:"user_id"`
+	}
+	// 定义登录请求
+	LoginReq {
+		Phone    string `json:"phone"`
+		Password string `json:"password"`
+	}
+	LoginResp {
+		Token  string `json:"token"`
+		Expire int64  `json:"expire"`
+	}
+)
+
+service user-api {
+	@handler Register
+	post /user/register (RegisterReq) returns (RegisterResp)
+
+	@handler Login
+	post /user/login (LoginReq) returns (LoginResp)
+}
+

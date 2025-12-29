@@ -2,9 +2,12 @@ package resultx
 
 import (
 	"net/http"
+	"strconv"
+	"strings"
 
 	"easy-chat/pkg/xerr" // 假设你有自定义错误码包
 
+	"github.com/pkg/errors"
 	"github.com/zeromicro/go-zero/rest/httpx"
 	"google.golang.org/grpc/status"
 )
@@ -22,16 +25,34 @@ func HttpResult(r *http.Request, w http.ResponseWriter, resp interface{}, err er
 		httpx.WriteJson(w, http.StatusOK, r)
 	} else {
 		// 失败返回
-		errCode := uint32(xerr.SERVER_COMMON_ERROR) // 默认为服务器通用错误
+		var errCode uint32 = xerr.SERVER_COMMON_ERROR // 明确声明为 uint32
 		errMsg := "服务器开小差了，稍后再试"
 
-		// 判断是否为自定义错误 (如果是 grpc 返回的错误，这里也能解析)
-		// 这里的逻辑取决于你怎么定义 xerr，通常需要解析 err 类型
-		// 简单示例：
-		if s, ok := status.FromError(err); ok {
-			// 拿到 gRPC 的错误码和错误信息
-			errCode = uint32(s.Code())
+		// 优先级1：检查是否为本地 CodeError
+		if e, ok := err.(*xerr.CodeError); ok {
+			errCode = e.GetErrCode()
+			errMsg = e.GetErrMsg()
+		} else if s, ok := status.FromError(err); ok {
+			// 优先级2：gRPC 错误，尝试从消息中解析自定义错误码
 			errMsg = s.Message()
+			// 消息格式: "ErrCode:200003，ErrMsg:密码错误"
+			if strings.Contains(errMsg, "ErrCode:") && strings.Contains(errMsg, "ErrMsg:") {
+				parts := strings.Split(errMsg, "，")
+				if len(parts) >= 2 {
+					codeStr := strings.TrimPrefix(parts[0], "ErrCode:")
+					if code, parseErr := strconv.ParseUint(codeStr, 10, 32); parseErr == nil {
+						errCode = uint32(code)
+						errMsg = strings.TrimPrefix(parts[1], "ErrMsg:")
+					}
+				}
+			}
+			// 如果解析失败，errCode 和 errMsg 保持默认值
+		} else if causeErr := errors.Cause(err); causeErr != err {
+			// 优先级3：尝试用 pkg/errors 解包
+			if e, ok := causeErr.(*xerr.CodeError); ok {
+				errCode = e.GetErrCode()
+				errMsg = e.GetErrMsg()
+			}
 		}
 
 		httpx.WriteJson(w, http.StatusOK, ResponseBean{
@@ -44,7 +65,7 @@ func HttpResult(r *http.Request, w http.ResponseWriter, resp interface{}, err er
 
 func Success(data interface{}) *ResponseBean {
 	return &ResponseBean{
-		Code: 0,
+		Code: uint32(xerr.OK),
 		Msg:  "OK",
 		Data: data,
 	}

@@ -3,6 +3,8 @@ module easy-chat
 go 1.25.5
 
 require (
+	github.com/golang-jwt/jwt/v4 v4.5.2
+	github.com/pkg/errors v0.9.1
 	github.com/zeromicro/go-zero v1.9.4
 	golang.org/x/crypto v0.44.0
 	google.golang.org/grpc v1.78.0
