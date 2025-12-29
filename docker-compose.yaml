@@ -9,13 +9,14 @@ services:
       - "3380:2380"
     environment:
       - ETCD_LISTEN_CLIENT_URLS=http://0.0.0.0:2379
-      - ETCD_ADVERTISE_CLIENT_URLS=http://etcd:2379
     volumes:
       - ./components/etcd/data:/etcd-data
     command:
       - /usr/local/bin/etcd
       - --data-dir=/etcd-data
       - --name=etcd
+      - --advertise-client-urls=http://127.0.0.1:2379
+      - --initial-advertise-peer-urls=http://127.0.0.1:2380
     networks:
       easy-chat:
 

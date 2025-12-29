@@ -1,6 +1,8 @@
 package jwtx
 
 import (
+	"fmt"
+
 	"github.com/golang-jwt/jwt/v4"
 )
 
@@ -18,4 +20,27 @@ func GetToken(secretKey string, iat, seconds, uid int64) (string, error) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString([]byte(secretKey))
+}
+
+// ParseToken 解析 Token
+func ParseToken(tokenString string, secretKey string) (jwt.MapClaims, error) {
+	// 1. 解析 token
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		// 校验签名算法是否匹配
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte(secretKey), nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	// 2. 验证 token 有效性并提取 Claims
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		return claims, nil
+	}
+
+	return nil, fmt.Errorf("invalid token")
 }

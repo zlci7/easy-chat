@@ -1,0 +1,13 @@
+Name: gateway
+Host: 0.0.0.0
+Port: 8889
+
+UserRpc:
+  Etcd:
+    Hosts:
+    - 127.0.0.1:3379
+    Key: user.rpc
+
+Jwt:
+  AccessSecret: easy_chat
+  AccessExpire: 864000

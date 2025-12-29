@@ -1,0 +1,6 @@
+// gateway.api
+service gateway {
+	@handler Ws // 告诉 goctl 生成 WsHandler
+	get /ws // 定义路径
+}
+
