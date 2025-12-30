@@ -18,6 +18,9 @@ const (
 	USER_ENCRYPT_ERROR  = 200004 // 密码加密失败
 	USER_SAVE_ERROR     = 200005 // 用户保存失败
 	USER_ID_GET_ERROR   = 200006 // 用户ID获取失败
+
+	//消息传输
+	MSG_SAVE_ERROR = 300001 // 消息保存失败
 )
 
 // CodeError 自定义错误结构体

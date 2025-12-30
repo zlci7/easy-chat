@@ -17,6 +17,9 @@ func init() {
 	message[USER_ENCRYPT_ERROR] = "密码加密失败"
 	message[USER_SAVE_ERROR] = "用户保存失败"
 	message[USER_ID_GET_ERROR] = "用户ID获取失败"
+
+	//消息传输
+	message[MSG_SAVE_ERROR] = "消息保存失败"
 }
 
 func MapErrMsg(errcode uint32) string {
