@@ -27,7 +27,6 @@ services:
     container_name: redis
     volumes:
       - ./components/redis/data:/data
-      # - ./components/redis/config/redis.conf:/usr/local/redis/config/redis.conf
     environment:
       TZ: Asia/Shanghai
     restart: always
@@ -49,22 +48,39 @@ services:
     networks:
       easy-chat:
 
-  # 开发模式：注释掉 user-rpc，使用本地运行
-  # 部署模式：取消注释以下配置
-  # user-rpc:
-  #   image: crpi-hej3i56qxeb503xt.cn-hangzhou.personal.cr.aliyuncs.com/easy-chat7/user-rpc-dev:latest
-  #   container_name: user-rpc
-  #   ports:
-  #     - "18080:8080"
-  #   depends_on:
-  #     - etcd
-  #     - mysql
-  #     - redis
-  #   environment:
-  #     TZ: Asia/Shanghai
-  #   restart: always
-  #   networks:
-  #     easy-chat:
+  # User RPC 服务（容器化）
+  user-rpc:
+    build:
+      context: .
+      dockerfile: apps/user/rpc/Dockerfile
+    container_name: user-rpc
+    ports:
+      - "8080:8080"
+    depends_on:
+      - etcd
+      - mysql
+      - redis
+    environment:
+      TZ: Asia/Shanghai
+    restart: always
+    networks:
+      easy-chat:
+
+  # User API 服务（容器化）
+  user-api:
+    build:
+      context: .
+      dockerfile: apps/user/api/Dockerfile
+    container_name: user-api
+    ports:
+      - "8888:8888"
+    depends_on:
+      - user-rpc
+    environment:
+      TZ: Asia/Shanghai
+    restart: always
+    networks:
+      easy-chat:
 
 networks:
   easy-chat:

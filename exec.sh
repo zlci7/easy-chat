@@ -3,6 +3,8 @@
 
 # 在 im_demo 根目录下执行
 goctl rpc protoc apps/user/rpc/user.proto --go_out=apps/user/rpc --go-grpc_out=apps/user/rpc --zrpc_out=apps/user/rpc
+goctl rpc protoc apps/msg/rpc/msg.proto --go_out=apps/msg/rpc --go-grpc_out=apps/msg/rpc --zrpc_out=apps/msg/rpc
+
 
 goctl model mysql ddl -src="./deploy/sql/user.sql" -dir="./apps/user/models" -c
 goctl model mysql datasource -url="root:1234@tcp(127.0.0.1:13306)/easy-chat" -table="user" -dir="./apps/user/models" -c

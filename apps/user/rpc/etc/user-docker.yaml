@@ -4,3 +4,12 @@ Etcd:
   Hosts:
   - etcd:2379
   Key: user.rpc
+
+# MySQL 配置（Docker 网络内部）
+DataSource: root:1234@tcp(mysql:3306)/easy-chat?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai
+
+# Redis 配置（Docker 网络内部）
+Cache:
+  - Host: redis:6379
+    Type: node
+    Pass: "1234"

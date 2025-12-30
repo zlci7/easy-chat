@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+package msg;
+option go_package = "./msg";
+
+// ---------------- 核心数据模型 ----------------
+
+// 消息详情 (对应你的 BroadcastMsg 结构，用于历史记录返回)
+message MsgData {
+  string msg_id = 1;       // 对应 MsgId
+  int64 from_user_id = 2;  // 对应 FromUserId
+  int64 to_user_id = 3;    // 对应 ToUserId (如果是群聊，这里存群ID)
+  int32 type = 4;          // 对应 Type: 1-单聊, 2-群聊
+  string content = 5;      // 对应 Content
+  int64 timestamp = 6;     // 对应 Timestamp
+}
+
+// ---------------- 请求/响应定义 ----------------
+
+// 1. 发送消息请求 (Gateway -> Msg RPC)
+message SendMsgReq {
+  int64 from_user_id = 1;  // 发送人 (从Token解析)
+  int64 to_user_id = 2;    // 接收人/群ID
+  int32 type = 3;          // 1-单聊, 2-群聊
+  string content = 4;      // 内容
+}
+
+// 发送消息响应
+message SendMsgResp {
+  string msg_id = 1;       // 服务端生成的唯一ID
+  int64 timestamp = 2;     // 服务端生成的发送时间
+}
+
+// 2. 获取历史消息请求 (API -> Msg RPC)
+message GetHistoryReq {
+  int64 user_id = 1;       // 当前查看的用户
+  int64 peer_id = 2;       // 对方ID (好友ID 或 群ID)
+  int32 type = 3;          // 1-单聊, 2-群聊
+  int64 page = 4;          // 页码
+  int64 page_size = 5;     // 每页条数
+}
+
+// 获取历史消息响应
+message GetHistoryResp {
+  repeated MsgData list = 1; // 消息列表
+}
+
+// ---------------- 服务接口定义 ----------------
+
+service Msg {
+  // 发送消息：处理存储、生成ID、广播
+  rpc SendMsg(SendMsgReq) returns(SendMsgResp);
+
+  // 获取消息历史
+  rpc GetHistory(GetHistoryReq) returns(GetHistoryResp);
+}

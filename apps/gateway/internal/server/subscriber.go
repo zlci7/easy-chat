@@ -44,7 +44,9 @@ func (s *Subscriber) Start() {
 func (s *Subscriber) subscribeLoop() {
 	logx.Info("Attributes: [Redis Sub] starting...")
 
+	//创建一个上下文
 	ctx := context.Background()
+	//订阅消息
 	pubsub := s.rds.Subscribe(ctx, mq.PushMsgKey)
 	defer pubsub.Close()
 
@@ -59,10 +61,22 @@ func (s *Subscriber) subscribeLoop() {
 			continue
 		}
 
-		// 发送逻辑
-		if err := s.connMgr.SendMsg(broadcastMsg.UserId, []byte(broadcastMsg.Content)); err != nil {
-			// 这种通常是 debug 级别的日志，避免生产环境日志爆炸
-			// logx.Debugf("User %d not on this node", broadcastMsg.UserId)
+		// // 发送逻辑
+		// if err := s.connMgr.SendMsg(broadcastMsg.ToUserId, []byte(broadcastMsg.Content)); err != nil {
+		// 	// 这种通常是 debug 级别的日志，避免生产环境日志爆炸
+		// 	// logx.Debugf("User %d not on this node", broadcastMsg.UserId)
+		// }
+
+		// 发送逻辑：把完整的消息结构体发送给客户端
+		jsonData, err := json.Marshal(broadcastMsg)
+		if err != nil {
+			logx.Errorf("[Redis Sub] Marshal error: %v", err)
+			continue
+		}
+
+		if err := s.connMgr.SendMsg(broadcastMsg.ToUserId, jsonData); err != nil {
+			// 用户可能不在当前节点，这是正常的
+			// logx.Debugf("User %d not on this node", broadcastMsg.ToUserId)
 		}
 	}
 }
