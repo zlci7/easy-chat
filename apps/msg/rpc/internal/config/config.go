@@ -15,5 +15,5 @@ type Config struct {
 	Cache cache.CacheConf
 
 	//Redis连接配置
-	Redis redis.RedisConf
+	RedisPubSub redis.RedisConf
 }

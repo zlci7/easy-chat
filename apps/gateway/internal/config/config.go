@@ -18,8 +18,12 @@ type Config struct {
 		AccessExpire int64
 	}
 
-	// RPC 客户端配置（用于服务发现）
+	// userRPC 客户端配置（用于服务发现）
 	UserRpc zrpc.RpcClientConf
 
+	//msgRPC 客户端配置（用于服务发现）
+	MsgRpc zrpc.RpcClientConf
+
+	// Redis 配置
 	Redis redis.RedisConf
 }

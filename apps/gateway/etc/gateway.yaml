@@ -8,6 +8,13 @@ UserRpc:
     - 127.0.0.1:3379
     Key: user.rpc
 
+MsgRpc:
+  Etcd:
+    Hosts:
+    - 127.0.0.1:3379
+    Key: msg.rpc
+    
+
 Jwt:
   AccessSecret: easy_chat
   AccessExpire: 864000
@@ -17,3 +24,5 @@ Redis:
   Host: 127.0.0.1:16379
   Type: node
   Pass: "1234"
+
+  

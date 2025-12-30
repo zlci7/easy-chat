@@ -5,12 +5,15 @@
 package handler
 
 import (
+	"context"
+	"encoding/json"
 	"net/http"
 
 	"github.com/gorilla/websocket"
 	"github.com/zeromicro/go-zero/core/logx"
 
 	"easy-chat/apps/gateway/internal/svc"
+	"easy-chat/apps/msg/rpc/msg"
 	"easy-chat/pkg/jwtx" // 复用阶段一写的 JWT 工具
 )
 
@@ -63,11 +66,43 @@ func WsHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			for {
 				// 这里目前只处理 Ping/Pong 或者简单消息
 				// 后续上行消息逻辑写在这里
-				_, _, err := conn.ReadMessage()
+				_, message, err := conn.ReadMessage()
 				if err != nil {
 					break
 				}
+				// 1. 解析前端数据 (定义一个简单的结构体用于接收前端传参)
+				var input struct {
+					ToUserId int64  `json:"toUserId"`
+					Content  string `json:"content"`
+					Type     int    `json:"type"`
+				}
+				json.Unmarshal(message, &input)
+
+				// 2. 调用 Msg RPC
+				_, err = svcCtx.MsgRpc.SendMsg(context.Background(), &msg.SendMsgReq{
+					FromUserId: uid,
+					ToUserId:   input.ToUserId,
+					Content:    input.Content,
+					Type:       int32(input.Type),
+				})
+
+				// 3. 返回响应给客户端
+				if err != nil {
+					// 发送失败，返回错误
+					conn.WriteJSON(map[string]interface{}{
+						"action": "error",
+						"error":  "发送消息失败",
+						"code":   500,
+					})
+					logx.Errorf("Send msg error: %v", err)
+				} else {
+					// 发送成功，返回 ACK
+					conn.WriteJSON(map[string]interface{}{
+						"action": "msgAck",
+					})
+				}
 			}
+
 		}()
 	}
 }

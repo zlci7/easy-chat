@@ -6,6 +6,7 @@ package svc
 import (
 	"easy-chat/apps/gateway/internal/config"
 	"easy-chat/apps/gateway/internal/server"
+	"easy-chat/apps/msg/rpc/msgclient"
 	"easy-chat/apps/user/rpc/userclient"
 
 	"github.com/zeromicro/go-zero/zrpc"
@@ -19,6 +20,9 @@ type ServiceContext struct {
 
 	// RPC 客户端（用于服务发现和调用）
 	UserRpc userclient.User
+
+	// Msg RPC 客户端（用于服务发现和调用）
+	MsgRpc msgclient.Msg
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -35,5 +39,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 
 		// 初始化 UserRpc 客户端（这里会从 Etcd 发现服务）
 		UserRpc: userclient.NewUser(zrpc.MustNewClient(c.UserRpc)),
+
+		MsgRpc: msgclient.NewMsg(zrpc.MustNewClient(c.MsgRpc)),
 	}
 }
