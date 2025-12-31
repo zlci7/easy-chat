@@ -9,10 +9,12 @@ option go_package = "./msg";
 message MsgData {
   string msg_id = 1;       // 对应 MsgId
   int64 from_user_id = 2;  // 对应 FromUserId
-  int64 to_user_id = 3;    // 对应 ToUserId (如果是群聊，这里存群ID)
-  int32 type = 4;          // 对应 Type: 1-单聊, 2-群聊
-  string content = 5;      // 对应 Content
-  int64 timestamp = 6;     // 对应 Timestamp
+  int64 to_user_id = 3;    // 单聊时使用
+  int64 group_id = 4;      // 群聊时使用 ← 新增
+  int32 type = 5;          // 对应 Type: 1-单聊, 2-群聊
+  string content = 6;      // 对应 Content
+  int64 timestamp = 7;     // 对应 Timestamp
+  int64 seq = 8;           // 对应 Seq
 }
 
 // ---------------- 请求/响应定义 ----------------
@@ -20,15 +22,17 @@ message MsgData {
 // 1. 发送消息请求 (Gateway -> Msg RPC)
 message SendMsgReq {
   int64 from_user_id = 1;  // 发送人 (从Token解析)
-  int64 to_user_id = 2;    // 接收人/群ID
-  int32 type = 3;          // 1-单聊, 2-群聊
-  string content = 4;      // 内容
+  int64 to_user_id = 2;    // 接收人
+  int64 group_id = 3;      // 群聊时使用 ← 新增
+  int32 type = 4;          // 1-单聊, 2-群聊
+  string content = 5;      // 内容
 }
 
 // 发送消息响应
 message SendMsgResp {
   string msg_id = 1;       // 服务端生成的唯一ID
   int64 timestamp = 2;     // 服务端生成的发送时间
+  int64 seq = 3;           // 会话内消息序列号 ← 新增
 }
 
 // 2. 获取历史消息请求 (API -> Msg RPC)

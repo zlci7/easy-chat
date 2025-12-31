@@ -26,10 +26,12 @@ type MsgData struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	MsgId         string                 `protobuf:"bytes,1,opt,name=msg_id,json=msgId,proto3" json:"msg_id,omitempty"`                   // 对应 MsgId
 	FromUserId    int64                  `protobuf:"varint,2,opt,name=from_user_id,json=fromUserId,proto3" json:"from_user_id,omitempty"` // 对应 FromUserId
-	ToUserId      int64                  `protobuf:"varint,3,opt,name=to_user_id,json=toUserId,proto3" json:"to_user_id,omitempty"`       // 对应 ToUserId (如果是群聊，这里存群ID)
-	Type          int32                  `protobuf:"varint,4,opt,name=type,proto3" json:"type,omitempty"`                                 // 对应 Type: 1-单聊, 2-群聊
-	Content       string                 `protobuf:"bytes,5,opt,name=content,proto3" json:"content,omitempty"`                            // 对应 Content
-	Timestamp     int64                  `protobuf:"varint,6,opt,name=timestamp,proto3" json:"timestamp,omitempty"`                       // 对应 Timestamp
+	ToUserId      int64                  `protobuf:"varint,3,opt,name=to_user_id,json=toUserId,proto3" json:"to_user_id,omitempty"`       // 单聊时使用
+	GroupId       int64                  `protobuf:"varint,4,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`            // 群聊时使用 ← 新增
+	Type          int32                  `protobuf:"varint,5,opt,name=type,proto3" json:"type,omitempty"`                                 // 对应 Type: 1-单聊, 2-群聊
+	Content       string                 `protobuf:"bytes,6,opt,name=content,proto3" json:"content,omitempty"`                            // 对应 Content
+	Timestamp     int64                  `protobuf:"varint,7,opt,name=timestamp,proto3" json:"timestamp,omitempty"`                       // 对应 Timestamp
+	Seq           int64                  `protobuf:"varint,8,opt,name=seq,proto3" json:"seq,omitempty"`                                   // 对应 Seq
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -85,6 +87,13 @@ func (x *MsgData) GetToUserId() int64 {
 	return 0
 }
 
+func (x *MsgData) GetGroupId() int64 {
+	if x != nil {
+		return x.GroupId
+	}
+	return 0
+}
+
 func (x *MsgData) GetType() int32 {
 	if x != nil {
 		return x.Type
@@ -106,13 +115,21 @@ func (x *MsgData) GetTimestamp() int64 {
 	return 0
 }
 
+func (x *MsgData) GetSeq() int64 {
+	if x != nil {
+		return x.Seq
+	}
+	return 0
+}
+
 // 1. 发送消息请求 (Gateway -> Msg RPC)
 type SendMsgReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	FromUserId    int64                  `protobuf:"varint,1,opt,name=from_user_id,json=fromUserId,proto3" json:"from_user_id,omitempty"` // 发送人 (从Token解析)
-	ToUserId      int64                  `protobuf:"varint,2,opt,name=to_user_id,json=toUserId,proto3" json:"to_user_id,omitempty"`       // 接收人/群ID
-	Type          int32                  `protobuf:"varint,3,opt,name=type,proto3" json:"type,omitempty"`                                 // 1-单聊, 2-群聊
-	Content       string                 `protobuf:"bytes,4,opt,name=content,proto3" json:"content,omitempty"`                            // 内容
+	ToUserId      int64                  `protobuf:"varint,2,opt,name=to_user_id,json=toUserId,proto3" json:"to_user_id,omitempty"`       // 接收人
+	GroupId       int64                  `protobuf:"varint,3,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`            // 群聊时使用 ← 新增
+	Type          int32                  `protobuf:"varint,4,opt,name=type,proto3" json:"type,omitempty"`                                 // 1-单聊, 2-群聊
+	Content       string                 `protobuf:"bytes,5,opt,name=content,proto3" json:"content,omitempty"`                            // 内容
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -161,6 +178,13 @@ func (x *SendMsgReq) GetToUserId() int64 {
 	return 0
 }
 
+func (x *SendMsgReq) GetGroupId() int64 {
+	if x != nil {
+		return x.GroupId
+	}
+	return 0
+}
+
 func (x *SendMsgReq) GetType() int32 {
 	if x != nil {
 		return x.Type
@@ -180,6 +204,7 @@ type SendMsgResp struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	MsgId         string                 `protobuf:"bytes,1,opt,name=msg_id,json=msgId,proto3" json:"msg_id,omitempty"` // 服务端生成的唯一ID
 	Timestamp     int64                  `protobuf:"varint,2,opt,name=timestamp,proto3" json:"timestamp,omitempty"`     // 服务端生成的发送时间
+	Seq           int64                  `protobuf:"varint,3,opt,name=seq,proto3" json:"seq,omitempty"`                 // 会话内消息序列号 ← 新增
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -224,6 +249,13 @@ func (x *SendMsgResp) GetMsgId() string {
 func (x *SendMsgResp) GetTimestamp() int64 {
 	if x != nil {
 		return x.Timestamp
+	}
+	return 0
+}
+
+func (x *SendMsgResp) GetSeq() int64 {
+	if x != nil {
+		return x.Seq
 	}
 	return 0
 }
@@ -354,27 +386,31 @@ var File_apps_msg_rpc_msg_proto protoreflect.FileDescriptor
 
 const file_apps_msg_rpc_msg_proto_rawDesc = "" +
 	"\n" +
-	"\x16apps/msg/rpc/msg.proto\x12\x03msg\"\xac\x01\n" +
+	"\x16apps/msg/rpc/msg.proto\x12\x03msg\"\xd9\x01\n" +
 	"\aMsgData\x12\x15\n" +
 	"\x06msg_id\x18\x01 \x01(\tR\x05msgId\x12 \n" +
 	"\ffrom_user_id\x18\x02 \x01(\x03R\n" +
 	"fromUserId\x12\x1c\n" +
 	"\n" +
-	"to_user_id\x18\x03 \x01(\x03R\btoUserId\x12\x12\n" +
-	"\x04type\x18\x04 \x01(\x05R\x04type\x12\x18\n" +
-	"\acontent\x18\x05 \x01(\tR\acontent\x12\x1c\n" +
-	"\ttimestamp\x18\x06 \x01(\x03R\ttimestamp\"z\n" +
+	"to_user_id\x18\x03 \x01(\x03R\btoUserId\x12\x19\n" +
+	"\bgroup_id\x18\x04 \x01(\x03R\agroupId\x12\x12\n" +
+	"\x04type\x18\x05 \x01(\x05R\x04type\x12\x18\n" +
+	"\acontent\x18\x06 \x01(\tR\acontent\x12\x1c\n" +
+	"\ttimestamp\x18\a \x01(\x03R\ttimestamp\x12\x10\n" +
+	"\x03seq\x18\b \x01(\x03R\x03seq\"\x95\x01\n" +
 	"\n" +
 	"SendMsgReq\x12 \n" +
 	"\ffrom_user_id\x18\x01 \x01(\x03R\n" +
 	"fromUserId\x12\x1c\n" +
 	"\n" +
-	"to_user_id\x18\x02 \x01(\x03R\btoUserId\x12\x12\n" +
-	"\x04type\x18\x03 \x01(\x05R\x04type\x12\x18\n" +
-	"\acontent\x18\x04 \x01(\tR\acontent\"B\n" +
+	"to_user_id\x18\x02 \x01(\x03R\btoUserId\x12\x19\n" +
+	"\bgroup_id\x18\x03 \x01(\x03R\agroupId\x12\x12\n" +
+	"\x04type\x18\x04 \x01(\x05R\x04type\x12\x18\n" +
+	"\acontent\x18\x05 \x01(\tR\acontent\"T\n" +
 	"\vSendMsgResp\x12\x15\n" +
 	"\x06msg_id\x18\x01 \x01(\tR\x05msgId\x12\x1c\n" +
-	"\ttimestamp\x18\x02 \x01(\x03R\ttimestamp\"\x86\x01\n" +
+	"\ttimestamp\x18\x02 \x01(\x03R\ttimestamp\x12\x10\n" +
+	"\x03seq\x18\x03 \x01(\x03R\x03seq\"\x86\x01\n" +
 	"\rGetHistoryReq\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\x03R\x06userId\x12\x17\n" +
 	"\apeer_id\x18\x02 \x01(\x03R\x06peerId\x12\x12\n" +

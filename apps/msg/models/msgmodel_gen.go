@@ -43,12 +43,13 @@ type (
 
 	Msg struct {
 		Id         uint64 `db:"id"`
-		MsgId      string `db:"msg_id"`      // 业务ID
+		MsgId      string `db:"msg_id"`      // 业务全局唯一ID(UUID)
 		FromUid    int64  `db:"from_uid"`    // 发送者ID
 		ToUid      int64  `db:"to_uid"`      // 接收者ID
 		GroupId    int64  `db:"group_id"`    // 群ID
 		Type       int64  `db:"type"`        // 消息类型
 		Content    string `db:"content"`     // 消息内容
+		Seq        uint64 `db:"seq"`         // 会话内消息序列号(单聊/群聊内递增)
 		CreateTime int64  `db:"create_time"` // 发送时间(ms)
 	}
 )
@@ -116,8 +117,8 @@ func (m *defaultMsgModel) Insert(ctx context.Context, data *Msg) (sql.Result, er
 	msgIdKey := fmt.Sprintf("%s%v", cacheMsgIdPrefix, data.Id)
 	msgMsgIdKey := fmt.Sprintf("%s%v", cacheMsgMsgIdPrefix, data.MsgId)
 	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?)", m.table, msgRowsExpectAutoSet)
-		return conn.ExecCtx(ctx, query, data.MsgId, data.FromUid, data.ToUid, data.GroupId, data.Type, data.Content)
+		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?)", m.table, msgRowsExpectAutoSet)
+		return conn.ExecCtx(ctx, query, data.MsgId, data.FromUid, data.ToUid, data.GroupId, data.Type, data.Content, data.Seq)
 	}, msgIdKey, msgMsgIdKey)
 	return ret, err
 }
@@ -132,7 +133,7 @@ func (m *defaultMsgModel) Update(ctx context.Context, newData *Msg) error {
 	msgMsgIdKey := fmt.Sprintf("%s%v", cacheMsgMsgIdPrefix, data.MsgId)
 	_, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, msgRowsWithPlaceHolder)
-		return conn.ExecCtx(ctx, query, newData.MsgId, newData.FromUid, newData.ToUid, newData.GroupId, newData.Type, newData.Content, newData.Id)
+		return conn.ExecCtx(ctx, query, newData.MsgId, newData.FromUid, newData.ToUid, newData.GroupId, newData.Type, newData.Content, newData.Seq, newData.Id)
 	}, msgIdKey, msgMsgIdKey)
 	return err
 }
