@@ -20,6 +20,7 @@ func init() {
 
 	//消息传输
 	message[MSG_SAVE_ERROR] = "消息保存失败"
+	message[SEQ_GET_ERROR] = "序列号获取失败"
 }
 
 func MapErrMsg(errcode uint32) string {

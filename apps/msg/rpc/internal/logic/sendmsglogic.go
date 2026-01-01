@@ -3,6 +3,7 @@ package logic
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"easy-chat/apps/msg/models"
@@ -36,17 +37,30 @@ func (l *SendMsgLogic) SendMsg(in *msg.SendMsgReq) (*msg.SendMsgResp, error) {
 	msgId := uuid.New().String()
 	now := time.Now().UnixMilli()
 
+	//改进：通过redis生成seqId，避免mysql自增id的缺点
+	//获取唯一redis key
+	seqKey := l.getSessionSeqKey(in.FromUserId, in.ToUserId, in.Type, in.GroupId)
+	//获取序列号
+	seq, err := l.svcCtx.RedisClient.Incr(seqKey)
+	if err != nil {
+		l.Logger.Errorf("get session seq from redis error: %v", err)
+		return nil, xerr.NewErrCode(xerr.SEQ_GET_ERROR)
+	}
+
 	//2.存入mysql
 	newMsg := &models.Msg{
 		MsgId:      msgId,
 		FromUid:    in.FromUserId,
 		ToUid:      in.ToUserId,
-		Type:       int64(in.Type), //类型转换为int64
+		Type:       in.Type,
+		GroupId:    in.GroupId,
 		Content:    in.Content,
 		CreateTime: now,
+		Seq:        seq, // 广播出去的序列号
 	}
+
 	//2.1 插入mysql
-	_, err := l.svcCtx.MsgModel.Insert(l.ctx, newMsg)
+	_, err = l.svcCtx.MsgModel.Insert(l.ctx, newMsg)
 	if err != nil {
 		l.Logger.Errorf("insert msg to mysql error: %v", err)
 		return nil, xerr.NewErrCode(xerr.MSG_SAVE_ERROR)
@@ -57,9 +71,11 @@ func (l *SendMsgLogic) SendMsg(in *msg.SendMsgReq) (*msg.SendMsgResp, error) {
 		MsgId:      msgId,
 		FromUserId: in.FromUserId,
 		ToUserId:   in.ToUserId,
-		Type:       int(in.Type),
+		Type:       int64(in.Type),
 		Content:    in.Content,
 		Timestamp:  now,
+		Seq:        seq,
+		GroupId:    in.GroupId,
 	}
 
 	//4. 序列化广播消息
@@ -82,5 +98,17 @@ func (l *SendMsgLogic) SendMsg(in *msg.SendMsgReq) (*msg.SendMsgResp, error) {
 	return &msg.SendMsgResp{
 		MsgId:     msgId,
 		Timestamp: now,
+		Seq:       seq,
 	}, nil
+}
+
+// 获取会话序列号key
+func (l *SendMsgLogic) getSessionSeqKey(fromUid, toUid int64, msgType int64, groupId int64) string {
+	if msgType == 2 {
+		return fmt.Sprintf("easy-chat:session:group_seq:%d", groupId)
+	}
+	if fromUid > toUid {
+		fromUid, toUid = toUid, fromUid
+	}
+	return fmt.Sprintf("easy-chat:session:private_seq:%d:%d", fromUid, toUid)
 }

@@ -21,6 +21,7 @@ const (
 
 	//消息传输
 	MSG_SAVE_ERROR = 300001 // 消息保存失败
+	SEQ_GET_ERROR  = 300002 // 序列号获取失败
 )
 
 // CodeError 自定义错误结构体

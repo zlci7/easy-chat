@@ -49,7 +49,7 @@ type (
 		GroupId    int64  `db:"group_id"`    // 群ID
 		Type       int64  `db:"type"`        // 消息类型
 		Content    string `db:"content"`     // 消息内容
-		Seq        uint64 `db:"seq"`         // 会话内消息序列号(单聊/群聊内递增)
+		Seq        int64  `db:"seq"`         // 会话内消息序列号(单聊/群聊内递增)
 		CreateTime int64  `db:"create_time"` // 发送时间(ms)
 	}
 )

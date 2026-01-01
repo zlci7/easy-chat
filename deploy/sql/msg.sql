@@ -7,7 +7,7 @@ CREATE TABLE `msg` (
   `type` tinyint(4) NOT NULL DEFAULT '1' COMMENT '消息类型',
   `content` varchar(2048) NOT NULL DEFAULT '' COMMENT '消息内容',
   
-  `seq` bigint(20) UNSIGNED NOT NULL DEFAULT '0' COMMENT '会话内消息序列号(单聊/群聊内递增)',
+  `seq` bigint(20)  NOT NULL DEFAULT '0' COMMENT '会话内消息序列号(单聊/群聊内递增)',
   
   `create_time` bigint(20) NOT NULL DEFAULT '0' COMMENT '发送时间(ms)',
   

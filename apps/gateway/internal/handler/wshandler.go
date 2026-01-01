@@ -74,7 +74,7 @@ func WsHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 				var input struct {
 					ToUserId int64  `json:"toUserId"`
 					Content  string `json:"content"`
-					Type     int    `json:"type"`
+					Type     int64  `json:"type"`
 				}
 				json.Unmarshal(message, &input)
 
@@ -83,7 +83,7 @@ func WsHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 					FromUserId: uid,
 					ToUserId:   input.ToUserId,
 					Content:    input.Content,
-					Type:       int32(input.Type),
+					Type:       input.Type,
 				})
 
 				// 3. 返回响应给客户端

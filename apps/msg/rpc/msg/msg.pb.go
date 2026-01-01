@@ -28,7 +28,7 @@ type MsgData struct {
 	FromUserId    int64                  `protobuf:"varint,2,opt,name=from_user_id,json=fromUserId,proto3" json:"from_user_id,omitempty"` // 对应 FromUserId
 	ToUserId      int64                  `protobuf:"varint,3,opt,name=to_user_id,json=toUserId,proto3" json:"to_user_id,omitempty"`       // 单聊时使用
 	GroupId       int64                  `protobuf:"varint,4,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`            // 群聊时使用 ← 新增
-	Type          int32                  `protobuf:"varint,5,opt,name=type,proto3" json:"type,omitempty"`                                 // 对应 Type: 1-单聊, 2-群聊
+	Type          int64                  `protobuf:"varint,5,opt,name=type,proto3" json:"type,omitempty"`                                 // 对应 Type: 1-单聊, 2-群聊
 	Content       string                 `protobuf:"bytes,6,opt,name=content,proto3" json:"content,omitempty"`                            // 对应 Content
 	Timestamp     int64                  `protobuf:"varint,7,opt,name=timestamp,proto3" json:"timestamp,omitempty"`                       // 对应 Timestamp
 	Seq           int64                  `protobuf:"varint,8,opt,name=seq,proto3" json:"seq,omitempty"`                                   // 对应 Seq
@@ -94,7 +94,7 @@ func (x *MsgData) GetGroupId() int64 {
 	return 0
 }
 
-func (x *MsgData) GetType() int32 {
+func (x *MsgData) GetType() int64 {
 	if x != nil {
 		return x.Type
 	}
@@ -128,7 +128,7 @@ type SendMsgReq struct {
 	FromUserId    int64                  `protobuf:"varint,1,opt,name=from_user_id,json=fromUserId,proto3" json:"from_user_id,omitempty"` // 发送人 (从Token解析)
 	ToUserId      int64                  `protobuf:"varint,2,opt,name=to_user_id,json=toUserId,proto3" json:"to_user_id,omitempty"`       // 接收人
 	GroupId       int64                  `protobuf:"varint,3,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`            // 群聊时使用 ← 新增
-	Type          int32                  `protobuf:"varint,4,opt,name=type,proto3" json:"type,omitempty"`                                 // 1-单聊, 2-群聊
+	Type          int64                  `protobuf:"varint,4,opt,name=type,proto3" json:"type,omitempty"`                                 // 1-单聊, 2-群聊
 	Content       string                 `protobuf:"bytes,5,opt,name=content,proto3" json:"content,omitempty"`                            // 内容
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -185,7 +185,7 @@ func (x *SendMsgReq) GetGroupId() int64 {
 	return 0
 }
 
-func (x *SendMsgReq) GetType() int32 {
+func (x *SendMsgReq) GetType() int64 {
 	if x != nil {
 		return x.Type
 	}
@@ -265,7 +265,7 @@ type GetHistoryReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserId        int64                  `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`       // 当前查看的用户
 	PeerId        int64                  `protobuf:"varint,2,opt,name=peer_id,json=peerId,proto3" json:"peer_id,omitempty"`       // 对方ID (好友ID 或 群ID)
-	Type          int32                  `protobuf:"varint,3,opt,name=type,proto3" json:"type,omitempty"`                         // 1-单聊, 2-群聊
+	Type          int64                  `protobuf:"varint,3,opt,name=type,proto3" json:"type,omitempty"`                         // 1-单聊, 2-群聊
 	Page          int64                  `protobuf:"varint,4,opt,name=page,proto3" json:"page,omitempty"`                         // 页码
 	PageSize      int64                  `protobuf:"varint,5,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"` // 每页条数
 	unknownFields protoimpl.UnknownFields
@@ -316,7 +316,7 @@ func (x *GetHistoryReq) GetPeerId() int64 {
 	return 0
 }
 
-func (x *GetHistoryReq) GetType() int32 {
+func (x *GetHistoryReq) GetType() int64 {
 	if x != nil {
 		return x.Type
 	}
@@ -394,7 +394,7 @@ const file_apps_msg_rpc_msg_proto_rawDesc = "" +
 	"\n" +
 	"to_user_id\x18\x03 \x01(\x03R\btoUserId\x12\x19\n" +
 	"\bgroup_id\x18\x04 \x01(\x03R\agroupId\x12\x12\n" +
-	"\x04type\x18\x05 \x01(\x05R\x04type\x12\x18\n" +
+	"\x04type\x18\x05 \x01(\x03R\x04type\x12\x18\n" +
 	"\acontent\x18\x06 \x01(\tR\acontent\x12\x1c\n" +
 	"\ttimestamp\x18\a \x01(\x03R\ttimestamp\x12\x10\n" +
 	"\x03seq\x18\b \x01(\x03R\x03seq\"\x95\x01\n" +
@@ -405,7 +405,7 @@ const file_apps_msg_rpc_msg_proto_rawDesc = "" +
 	"\n" +
 	"to_user_id\x18\x02 \x01(\x03R\btoUserId\x12\x19\n" +
 	"\bgroup_id\x18\x03 \x01(\x03R\agroupId\x12\x12\n" +
-	"\x04type\x18\x04 \x01(\x05R\x04type\x12\x18\n" +
+	"\x04type\x18\x04 \x01(\x03R\x04type\x12\x18\n" +
 	"\acontent\x18\x05 \x01(\tR\acontent\"T\n" +
 	"\vSendMsgResp\x12\x15\n" +
 	"\x06msg_id\x18\x01 \x01(\tR\x05msgId\x12\x1c\n" +
@@ -414,7 +414,7 @@ const file_apps_msg_rpc_msg_proto_rawDesc = "" +
 	"\rGetHistoryReq\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\x03R\x06userId\x12\x17\n" +
 	"\apeer_id\x18\x02 \x01(\x03R\x06peerId\x12\x12\n" +
-	"\x04type\x18\x03 \x01(\x05R\x04type\x12\x12\n" +
+	"\x04type\x18\x03 \x01(\x03R\x04type\x12\x12\n" +
 	"\x04page\x18\x04 \x01(\x03R\x04page\x12\x1b\n" +
 	"\tpage_size\x18\x05 \x01(\x03R\bpageSize\"2\n" +
 	"\x0eGetHistoryResp\x12 \n" +

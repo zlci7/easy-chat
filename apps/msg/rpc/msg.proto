@@ -11,7 +11,7 @@ message MsgData {
   int64 from_user_id = 2;  // 对应 FromUserId
   int64 to_user_id = 3;    // 单聊时使用
   int64 group_id = 4;      // 群聊时使用 ← 新增
-  int32 type = 5;          // 对应 Type: 1-单聊, 2-群聊
+  int64 type = 5;          // 对应 Type: 1-单聊, 2-群聊
   string content = 6;      // 对应 Content
   int64 timestamp = 7;     // 对应 Timestamp
   int64 seq = 8;           // 对应 Seq
@@ -24,7 +24,7 @@ message SendMsgReq {
   int64 from_user_id = 1;  // 发送人 (从Token解析)
   int64 to_user_id = 2;    // 接收人
   int64 group_id = 3;      // 群聊时使用 ← 新增
-  int32 type = 4;          // 1-单聊, 2-群聊
+  int64 type = 4;          // 1-单聊, 2-群聊
   string content = 5;      // 内容
 }
 
@@ -39,7 +39,7 @@ message SendMsgResp {
 message GetHistoryReq {
   int64 user_id = 1;       // 当前查看的用户
   int64 peer_id = 2;       // 对方ID (好友ID 或 群ID)
-  int32 type = 3;          // 1-单聊, 2-群聊
+  int64 type = 3;          // 1-单聊, 2-群聊
   int64 page = 4;          // 页码
   int64 page_size = 5;     // 每页条数
 }
