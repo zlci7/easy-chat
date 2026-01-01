@@ -30,7 +30,7 @@ func NewMsgModel(conn sqlx.SqlConn, c cache.CacheConf, opts ...cache.Option) Msg
 	}
 }
 
-// 查询单聊历史消息
+// 查询单聊历史消息de1
 func (m *customMsgModel) FindListBySession(ctx context.Context, uid1, uid2 int64, page, pageSize int64) ([]*Msg, error) {
 	// 查询条件：(from_uid=A and to_uid=B) or (from_uid=B and to_uid=A)
 	// 并且 type=1（单聊），group_id=0
