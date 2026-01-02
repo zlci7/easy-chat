@@ -29,7 +29,7 @@ func NewGetHistoryLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetHis
 func (l *GetHistoryLogic) GetHistory(in *msg.GetHistoryReq) (*msg.GetHistoryResp, error) {
 	// todo: add your logic here and delete this line
 	//1. 调取model查询数据库
-	list, err := l.svcCtx.MsgModel.FindListBySession(l.ctx, in.UserId, in.PeerId, in.Page, in.PageSize)
+	list, err := l.svcCtx.MsgModel.FindListBySession(l.ctx, in.UserId, in.PeerId, 1, in.Page, in.PageSize)
 	if err != nil && err != models.ErrNotFound {
 		return nil, xerr.NewErrCode(xerr.DB_ERROR)
 	}
