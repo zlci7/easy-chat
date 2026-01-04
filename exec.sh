@@ -13,3 +13,12 @@ goctl api go -api apps/user/api/user.api -dir apps/user/api -style gozero
 goctl api go -api ./gateway.api -dir ./ -style gozero
 goctl api go -api apps/msg/api/msg.api -dir apps/msg/api -style gozero
 
+
+
+# 配置 HTTP/HTTPS 代理
+git config --global http.proxy http://proxy-server:port
+git config --global https.proxy https://proxy-server:port
+
+# 或使用 Git 镜像（中国大陆）
+git remote set-url origin https://gitee.com/zlci77/easy-chat.git
+
