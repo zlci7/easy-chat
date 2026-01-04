@@ -1,3 +1,13 @@
 Name: msg-api
 Host: 0.0.0.0
-Port: 8888
+Port: 8091
+
+MsgRpc:
+  Etcd:
+    Hosts:
+    - 127.0.0.1:3379
+    Key: msg.rpc
+
+Auth:
+  AccessSecret: easy_chat
+  AccessExpire: 864000

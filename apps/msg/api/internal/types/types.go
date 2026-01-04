@@ -4,7 +4,6 @@
 package types
 
 type GetHistoryReq struct {
-	UserId    int64 `json:"userId"`
 	PeerId    int64 `json:"peerId"`
 	Type      int64 `json:"type"`
 	AnchorSeq int64 `json:"anchorSeq"` // 锚点seq（0表示首次加载）
