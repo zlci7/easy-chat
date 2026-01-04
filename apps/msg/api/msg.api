@@ -1,0 +1,36 @@
+syntax = "v1"
+
+type (
+	GetHistoryReq {
+		UserId    int64 `json:"userId"`
+		PeerId    int64 `json:"peerId"`
+		Type      int64 `json:"type"`
+		AnchorSeq int64 `json:"anchorSeq"` // 锚点seq（0表示首次加载）
+		Direction int32 `json:"direction"` // 查询方向: 0-向前(查历史), 1-向后(查新消息)
+		Limit     int64 `json:"limit"` // 单次返回条数（默认20，最大100）
+	}
+	MsgData {
+		MsgId      string `json:"msgId"`
+		FromUserId int64  `json:"fromUserId"`
+		ToUserId   int64  `json:"toUserId"`
+		GroupId    int64  `json:"groupId"`
+		Type       int64  `json:"type"` // 1-单聊, 2-群聊
+		Content    string `json:"content"`
+		Timestamp  int64  `json:"timestamp"`
+		Seq        int64  `json:"seq"`
+	}
+	GetHistoryResp {
+		List    []MsgData `json:"list"`
+		HasMore bool      `json:"hasMore"`
+		NextSeq int64     `json:"nextSeq"`
+	}
+)
+
+@server (
+	jwt: Auth // 开启 JWT 认证，自动解析 UserId
+)
+service msg-api {
+	@handler GetHistory
+	post /msg/history (GetHistoryReq) returns (GetHistoryResp)
+}
+

@@ -11,5 +11,5 @@ goctl model mysql datasource -url="root:1234@tcp(127.0.0.1:13306)/easy-chat" -ta
 
 goctl api go -api apps/user/api/user.api -dir apps/user/api -style gozero
 goctl api go -api ./gateway.api -dir ./ -style gozero
-
+goctl api go -api apps/msg/api/msg.api -dir apps/msg/api -style gozero
 

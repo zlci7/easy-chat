@@ -40,13 +40,16 @@ message GetHistoryReq {
   int64 user_id = 1;       // 当前查看的用户
   int64 peer_id = 2;       // 对方ID (好友ID 或 群ID)
   int64 type = 3;          // 1-单聊, 2-群聊
-  int64 page = 4;          // 页码
-  int64 page_size = 5;     // 每页条数
+  int64 anchor_seq = 4;    // 锚点seq（0表示首次加载，拉取最新消息）
+  int32 direction = 5;     // 查询方向: 0-向前(查历史), 1-向后(查新消息)
+  int64 limit = 6;         // 单次返回条数限制（默认20，最大100）
 }
 
 // 获取历史消息响应
 message GetHistoryResp {
   repeated MsgData list = 1; // 消息列表
+  bool has_more = 2;         // 是否还有更多消息
+  int64 next_seq = 3;        // 下次请求的anchor_seq（用于分页）
 }
 
 // ---------------- 服务接口定义 ----------------
