@@ -1,0 +1,256 @@
+syntax = "v1"
+
+info (
+	title:   "群组服务API"
+	desc:    "群组相关的HTTP接口"
+	author:  "easy-chat"
+	version: "v1.0"
+)
+
+// ==================== 通用定义 ====================
+type (
+	// 分页参数
+	PageInfo {
+		Page     int32 `json:"page,default=1"` // 页码
+		PageSize int32 `json:"page_size,default=20"` // 每页数量
+	}
+	// 群成员信息
+	MemberInfo {
+		UserId      int64  `json:"user_id"`
+		Role        int32  `json:"role"` // 1-普通,2-管理员,3-群主
+		Status      int32  `json:"status"` // 0-已退出,1-正常,2-已被踢,3-已禁言
+		Nickname    string `json:"nickname"` // 群内昵称
+		JoinTime    int64  `json:"join_time"` // 加入时间
+		MuteEndTime int64  `json:"mute_end_time"` // 禁言结束时间
+		GroupId     int64  `json:"group_id"` // 群ID
+	}
+	// 群组信息
+	GroupInfo {
+		GroupId     int64  `json:"group_id"`
+		Name        string `json:"name"`
+		OwnerUid    int64  `json:"owner_uid"`
+		Type        int32  `json:"type"` // 1-普通群,2-超大群
+		Avatar      string `json:"avatar"`
+		Status      int32  `json:"status"` // 0-已解散,1-正常,2-已封禁
+		Description string `json:"description"`
+		Notice      string `json:"notice"` // 群公告
+		MaxMembers  int32  `json:"max_members"` // 最大成员数
+		MemberCount int32  `json:"member_count"` // 当前成员数
+		JoinType    int32  `json:"join_type"` // 1-自由,2-需审批,3-禁止
+		MuteAll     int32  `json:"mute_all"` // 0-否,1-全员禁言
+		CreateTime  int64  `json:"create_time"`
+		UpdateTime  int64  `json:"update_time"`
+	}
+)
+
+// ==================== 创建群 ====================
+type (
+	CreateGroupReq {
+		Name        string  `json:"name"` // 群名称
+		Avatar      string  `json:"avatar,optional"` // 群头像
+		Description string  `json:"description,optional"` // 群简介
+		MemberIds   []int64 `json:"member_ids,optional"` // 初始成员ID列表
+	}
+	CreateGroupResp {
+		GroupId   int64     `json:"group_id"`
+		GroupInfo GroupInfo `json:"group_info"`
+	}
+)
+
+// ==================== 加入群 ====================
+type (
+	JoinGroupReq {
+		GroupId    int64  `json:"group_id"` // 群ID
+		InviterUid int64  `json:"inviter_uid,optional"` // 邀请人ID
+		ApplyMsg   string `json:"apply_msg,optional"` // 申请消息
+	}
+	JoinGroupResp {
+		NeedApproval bool `json:"need_approval"` // 是否需要审批
+	}
+)
+
+// ==================== 退出群 ====================
+type (
+	LeaveGroupReq {
+		GroupId int64 `json:"group_id"` // 群ID
+	}
+	LeaveGroupResp  {}
+)
+
+// ==================== 解散群 ====================
+type (
+	DismissGroupReq {
+		GroupId int64 `json:"group_id"` // 群ID
+	}
+	DismissGroupResp  {}
+)
+
+// ==================== 踢出成员 ====================
+type (
+	KickMemberReq {
+		GroupId int64  `json:"group_id"` // 群ID
+		UserId  int64  `json:"user_id"` // 被踢出的用户ID
+		Reason  string `json:"reason,optional"` // 踢出原因
+	}
+	KickMemberResp  {}
+)
+
+// ==================== 设置管理员 ====================
+type (
+	SetAdminReq {
+		GroupId int64 `json:"group_id"` // 群ID
+		UserId  int64 `json:"user_id"` // 目标用户ID
+		Role    int32 `json:"role"` // 角色：1-取消管理员,2-设为管理员
+	}
+	SetAdminResp  {}
+)
+
+// ==================== 转让群主 ====================
+type (
+	TransferOwnerReq {
+		GroupId     int64 `json:"group_id"` // 群ID
+		NewOwnerUid int64 `json:"new_owner_uid"` // 新群主ID
+	}
+	TransferOwnerResp  {}
+)
+
+// ==================== 禁言/解除禁言 ====================
+type (
+	MuteMemberReq {
+		GroupId     int64 `json:"group_id"` // 群ID
+		UserId      int64 `json:"user_id"` // 被禁言的用户ID
+		MuteSeconds int64 `json:"mute_seconds"` // 禁言时长(秒),0表示解除禁言
+	}
+	MuteMemberResp  {}
+)
+
+// ==================== 获取群成员列表 ====================
+type (
+	GetGroupMembersReq {
+		GroupId int64    `json:"group_id"` // 群ID
+		Status  int32    `json:"status,default=1"` // 状态筛选 0-全部,1-仅正常
+		Page    PageInfo `json:"page,optional"` // 分页参数
+	}
+	GetGroupMembersResp {
+		List  []MemberInfo `json:"list"` // 成员列表
+		Total int32        `json:"total"` // 总数
+	}
+)
+
+// ==================== 获取群信息 ====================
+type (
+	GetGroupInfoReq {
+		GroupId int64 `json:"group_id"` // 群ID
+	}
+	GetGroupInfoResp {
+		GroupInfo GroupInfo `json:"group_info"`
+	}
+)
+
+// ==================== 批量获取群信息 ====================
+type (
+	GetGroupsInfoReq {
+		GroupIds []int64 `json:"group_ids"` // 群ID列表
+	}
+	GetGroupsInfoResp {
+		Groups map[string]GroupInfo `json:"groups"` // key: group_id, value: GroupInfo
+	}
+)
+
+// ==================== 更新群信息 ====================
+type (
+	UpdateGroupInfoReq {
+		GroupId     int64  `json:"group_id"` // 群ID
+		Name        string `json:"name,optional"` // 群名称
+		Avatar      string `json:"avatar,optional"` // 群头像
+		Description string `json:"description,optional"` // 群简介
+		Notice      string `json:"notice,optional"` // 群公告
+		JoinType    int32  `json:"join_type,optional"` // 加群方式
+		MuteAll     int32  `json:"mute_all,optional"` // 全员禁言 -1表示不修改
+	}
+	UpdateGroupInfoResp  {}
+)
+
+// ==================== 获取用户加入的群列表 ====================
+type (
+	GetUserGroupsReq {
+		Status int32    `json:"status,default=1"` // 状态筛选 0-全部,1-仅正常的群
+		Page   PageInfo `json:"page,optional"` // 分页参数
+	}
+	GetUserGroupsResp {
+		List  []GroupInfo `json:"list"` // 群列表
+		Total int32       `json:"total"` // 总数
+	}
+)
+
+// ==================== 检查用户是否在群内 ====================
+type (
+	IsInGroupReq {
+		GroupId int64 `json:"group_id"` // 群ID
+		UserId  int64 `json:"user_id"` // 用户ID
+	}
+	IsInGroupResp {
+		IsMember bool  `json:"is_member"` // 是否在群内
+		Role     int32 `json:"role"` // 角色（如果在群内）
+	}
+)
+
+// ==================== 服务定义 ====================
+// 不需要认证的接口（很少，这里没有）
+service group-api {}
+
+// 需要 JWT 认证的接口
+@server (
+	jwt:    Auth
+	group:  group
+	prefix: /api/group
+)
+service group-api {
+	// 基础功能
+	@handler CreateGroup
+	post /create (CreateGroupReq) returns (CreateGroupResp)
+
+	@handler JoinGroup
+	post /join (JoinGroupReq) returns (JoinGroupResp)
+
+	@handler LeaveGroup
+	post /leave (LeaveGroupReq) returns (LeaveGroupResp)
+
+	@handler DismissGroup
+	post /dismiss (DismissGroupReq) returns (DismissGroupResp)
+
+	// 成员管理
+	@handler KickMember
+	post /member/kick (KickMemberReq) returns (KickMemberResp)
+
+	@handler SetAdmin
+	post /member/admin (SetAdminReq) returns (SetAdminResp)
+
+	@handler TransferOwner
+	post /owner/transfer (TransferOwnerReq) returns (TransferOwnerResp)
+
+	@handler MuteMember
+	post /member/mute (MuteMemberReq) returns (MuteMemberResp)
+
+	// 信息查询
+	@handler GetGroupInfo
+	get /info (GetGroupInfoReq) returns (GetGroupInfoResp)
+
+	@handler GetGroupsInfo
+	post /info/batch (GetGroupsInfoReq) returns (GetGroupsInfoResp)
+
+	@handler GetGroupMembers
+	post /members (GetGroupMembersReq) returns (GetGroupMembersResp)
+
+	@handler GetUserGroups
+	get /user/groups (GetUserGroupsReq) returns (GetUserGroupsResp)
+
+	// 群信息修改
+	@handler UpdateGroupInfo
+	put /info (UpdateGroupInfoReq) returns (UpdateGroupInfoResp)
+
+	// 辅助功能
+	@handler IsInGroup
+	get /member/check (IsInGroupReq) returns (IsInGroupResp)
+}
+

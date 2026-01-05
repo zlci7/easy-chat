@@ -12,4 +12,6 @@ type Config struct {
 	DataSource string
 	//Mysql连接Redis缓存配置
 	Cache cache.CacheConf
+
+	SnowflakeNodeId int64 `json:"SnowflakeNodeId" default:"1"`
 }

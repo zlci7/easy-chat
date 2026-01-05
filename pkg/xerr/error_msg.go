@@ -21,6 +21,16 @@ func init() {
 	//消息传输
 	message[MSG_SAVE_ERROR] = "消息保存失败"
 	message[SEQ_GET_ERROR] = "序列号获取失败"
+
+	// 群组模块错误码 (400xxx)
+	message[CREATE_GROUP_ERROR] = "创建群失败"
+	message[GEN_GROUP_ID_ERROR] = "生成群id失败"
+	message[GROUP_NOT_FOUND] = "群不存在"
+	message[GROUP_ALREADY_JOINED] = "您已加入该群"
+	message[GROUP_DISBANDED] = "该群已解散"
+	message[GROUP_BANNED] = "该群已被封禁"
+	message[GROUP_MEMBER_LIMIT] = "群成员已满"
+	message[GROUP_UPDATE_MEMBER_COUNT_ERROR] = "更新群成员数失败"
 }
 
 func MapErrMsg(errcode uint32) string {

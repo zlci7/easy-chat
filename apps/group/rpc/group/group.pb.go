@@ -7,12 +7,11 @@
 package group
 
 import (
+	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
-
-	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 )
 
 const (
@@ -31,6 +30,7 @@ type Member struct {
 	Nickname      string                 `protobuf:"bytes,4,opt,name=nickname,proto3" json:"nickname,omitempty"`                             // 群内昵称
 	JoinTime      int64                  `protobuf:"varint,5,opt,name=join_time,json=joinTime,proto3" json:"join_time,omitempty"`            // 加入时间
 	MuteEndTime   int64                  `protobuf:"varint,6,opt,name=mute_end_time,json=muteEndTime,proto3" json:"mute_end_time,omitempty"` // 禁言结束时间
+	GroupId       int64                  `protobuf:"varint,7,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`               // 🔥 新增：群ID（不改变现有字段编号）
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -103,6 +103,13 @@ func (x *Member) GetJoinTime() int64 {
 func (x *Member) GetMuteEndTime() int64 {
 	if x != nil {
 		return x.MuteEndTime
+	}
+	return 0
+}
+
+func (x *Member) GetGroupId() int64 {
+	if x != nil {
+		return x.GroupId
 	}
 	return 0
 }
@@ -1985,14 +1992,15 @@ var File_apps_group_rpc_group_proto protoreflect.FileDescriptor
 
 const file_apps_group_rpc_group_proto_rawDesc = "" +
 	"\n" +
-	"\x1aapps/group/rpc/group.proto\x12\x05group\"\xaa\x01\n" +
+	"\x1aapps/group/rpc/group.proto\x12\x05group\"\xc5\x01\n" +
 	"\x06Member\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\x03R\x06userId\x12\x12\n" +
 	"\x04role\x18\x02 \x01(\x05R\x04role\x12\x16\n" +
 	"\x06status\x18\x03 \x01(\x05R\x06status\x12\x1a\n" +
 	"\bnickname\x18\x04 \x01(\tR\bnickname\x12\x1b\n" +
 	"\tjoin_time\x18\x05 \x01(\x03R\bjoinTime\x12\"\n" +
-	"\rmute_end_time\x18\x06 \x01(\x03R\vmuteEndTime\"\x93\x03\n" +
+	"\rmute_end_time\x18\x06 \x01(\x03R\vmuteEndTime\x12\x19\n" +
+	"\bgroup_id\x18\a \x01(\x03R\agroupId\"\x93\x03\n" +
 	"\tGroupInfo\x12\x19\n" +
 	"\bgroup_id\x18\x01 \x01(\x03R\agroupId\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1b\n" +

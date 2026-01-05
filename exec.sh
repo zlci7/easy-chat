@@ -17,6 +17,8 @@ goctl model mysql ddl -src="./deploy/sql/groups.sql" -dir="./apps/group/models" 
 goctl api go -api apps/user/api/user.api -dir apps/user/api -style gozero
 goctl api go -api ./gateway.api -dir ./ -style gozero
 goctl api go -api apps/msg/api/msg.api -dir apps/msg/api -style gozero
+goctl api go -api apps/group/api/group.api -dir apps/group/api -style gozero
+
 
 
 

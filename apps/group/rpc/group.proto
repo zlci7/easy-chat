@@ -14,6 +14,7 @@ message Member {
   string nickname = 4;     // 群内昵称
   int64 join_time = 5;     // 加入时间
   int64 mute_end_time = 6; // 禁言结束时间
+  int64 group_id = 7;      // 🔥 新增：群ID（不改变现有字段编号）
 }
 
 // 群组信息
