@@ -12,6 +12,7 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/zeromicro/go-zero/core/logx"
 
+	"easy-chat/apps/gateway/internal/server"
 	"easy-chat/apps/gateway/internal/svc"
 	"easy-chat/apps/msg/rpc/msg"
 	"easy-chat/pkg/jwtx" // 复用阶段一写的 JWT 工具
@@ -54,6 +55,9 @@ func WsHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		// 4. 加入连接管理器
 		svcCtx.ConnMgr.AddUserConnection(uid, conn)
 		logx.Infof("User %d connected", uid)
+
+		//新增Pong处理
+		server.SetupPongHandler(uid, conn)
 
 		// 5. 开启读取循环 (KeepAlive)
 		// 必须有一个循环读取消息，否则连接会断开

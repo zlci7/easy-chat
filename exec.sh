@@ -21,4 +21,3 @@ git config --global https.proxy https://proxy-server:port
 
 # 或使用 Git 镜像（中国大陆）
 git remote set-url origin https://gitee.com/zlci77/easy-chat.git
-
