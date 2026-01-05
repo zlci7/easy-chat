@@ -9,6 +9,10 @@ goctl rpc protoc apps/group/rpc/group.proto --go_out=apps/group/rpc --go-grpc_ou
 
 goctl model mysql ddl -src="./deploy/sql/msg.sql" -dir="./apps/msg/models" -c
 goctl model mysql datasource -url="root:1234@tcp(127.0.0.1:13306)/easy-chat" -table="user" -dir="./apps/user/models" -c
+goctl model mysql ddl -src="./deploy/sql/group_members.sql" -dir="./apps/group/models" -c
+goctl model mysql ddl -src="./deploy/sql/groups.sql" -dir="./apps/group/models" -c
+
+
 
 goctl api go -api apps/user/api/user.api -dir apps/user/api -style gozero
 goctl api go -api ./gateway.api -dir ./ -style gozero
