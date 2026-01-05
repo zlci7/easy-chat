@@ -1,0 +1,222 @@
+syntax = "proto3";
+
+package group;
+
+option go_package = "./group";
+
+// ==================== 基础消息定义 ====================
+
+// 群成员信息
+message Member {
+  int64 user_id = 1;       // 用户ID
+  int32 role = 2;          // 角色: 1-普通成员, 2-管理员, 3-群主
+  int32 status = 3;        // 状态: 0-已退出, 1-正常, 2-已被踢, 3-已禁言
+  string nickname = 4;     // 群内昵称
+  int64 join_time = 5;     // 加入时间
+  int64 mute_end_time = 6; // 禁言结束时间
+}
+
+// 群组信息
+message GroupInfo {
+  int64 group_id = 1;
+  string name = 2;
+  int64 owner_uid = 3;
+  int32 type = 4;          // 1-普通群, 2-超大群
+  string avatar = 5;
+  int32 status = 6;        // 0-已解散, 1-正常, 2-已封禁
+  string description = 7;
+  string notice = 8;       // 群公告
+  int32 max_members = 9;
+  int32 member_count = 10;
+  int32 join_type = 11;    // 1-自由加入, 2-需审批, 3-禁止
+  int32 mute_all = 12;     // 0-否, 1-全员禁言
+  int64 create_time = 13;
+  int64 update_time = 14;
+}
+
+// 分页参数
+message PageInfo {
+  int32 page = 1;      // 页码（从1开始）
+  int32 page_size = 2; // 每页数量（默认20）
+}
+
+// ==================== 创建群 ====================
+message CreateGroupReq {
+  int64 owner_uid = 1;      // 群主ID
+  string name = 2;          // 群名称
+  string avatar = 3;        // 群头像
+  string description = 4;   // 群简介
+  repeated int64 member_ids = 5; // 初始成员ID列表（可选）
+}
+message CreateGroupResp {
+  int64 group_id = 1;
+  GroupInfo group_info = 2; // 返回完整群信息
+}
+
+// ==================== 加入群 ====================
+message JoinGroupReq {
+  int64 group_id = 1;
+  int64 user_id = 2;
+  int64 inviter_uid = 3;    // 邀请人ID（0表示主动加入）
+  string apply_msg = 4;     // 申请消息
+}
+message JoinGroupResp {
+  bool need_approval = 1;   // 是否需要审批
+}
+
+// ==================== 退出群 ====================
+message LeaveGroupReq {
+  int64 group_id = 1;
+  int64 user_id = 2;
+}
+message LeaveGroupResp {}
+
+// ==================== 解散群 ====================
+message DismissGroupReq {
+  int64 group_id = 1;
+  int64 operator_uid = 2;   // 操作者ID（必须是群主）
+}
+message DismissGroupResp {}
+
+// ==================== 踢出成员 ====================
+message KickMemberReq {
+  int64 group_id = 1;
+  int64 operator_uid = 2;   // 操作者ID（群主或管理员）
+  int64 user_id = 3;        // 被踢出的用户ID
+  string reason = 4;        // 踢出原因
+}
+message KickMemberResp {}
+
+// ==================== 设置管理员 ====================
+message SetAdminReq {
+  int64 group_id = 1;
+  int64 operator_uid = 2;   // 操作者ID（必须是群主）
+  int64 user_id = 3;        // 目标用户ID
+  int32 role = 4;           // 角色：1-取消管理员, 2-设为管理员
+}
+message SetAdminResp {}
+
+// ==================== 转让群主 ====================
+message TransferOwnerReq {
+  int64 group_id = 1;
+  int64 operator_uid = 2;   // 操作者ID（必须是群主）
+  int64 new_owner_uid = 3;  // 新群主ID
+}
+message TransferOwnerResp {}
+
+// ==================== 禁言/解除禁言 ====================
+message MuteMemberReq {
+  int64 group_id = 1;
+  int64 operator_uid = 2;   // 操作者ID（群主或管理员）
+  int64 user_id = 3;        // 被禁言的用户ID
+  int64 mute_seconds = 4;   // 禁言时长（秒）, 0表示解除禁言
+}
+message MuteMemberResp {}
+
+// ==================== 获取群成员列表 ====================
+message GetGroupMembersReq {
+  int64 group_id = 1;
+  int32 status = 2;         // 状态筛选（0-全部, 1-仅正常成员）
+  PageInfo page = 3;        // 分页参数（大群必须分页）
+}
+message GetGroupMembersResp {
+  repeated Member list = 1;
+  int32 total = 2;          // 总数
+}
+
+// ==================== 获取群信息 ====================
+message GetGroupInfoReq {
+  int64 group_id = 1;
+}
+message GetGroupInfoResp {
+  GroupInfo group_info = 1;
+}
+
+// ==================== 批量获取群信息 ====================
+message GetGroupsInfoReq {
+  repeated int64 group_ids = 1; // 群ID列表
+}
+message GetGroupsInfoResp {
+  map<int64, GroupInfo> groups = 1; // key: group_id, value: GroupInfo
+}
+
+// ==================== 更新群信息 ====================
+message UpdateGroupInfoReq {
+  int64 group_id = 1;
+  int64 operator_uid = 2;   // 操作者ID（群主或管理员）
+  string name = 3;          // 群名称（可选）
+  string avatar = 4;        // 群头像（可选）
+  string description = 5;   // 群简介（可选）
+  string notice = 6;        // 群公告（可选）
+  int32 join_type = 7;      // 加群方式（可选）
+  int32 mute_all = 8;       // 全员禁言（可选，-1表示不修改）
+}
+message UpdateGroupInfoResp {}
+
+// ==================== 获取用户加入的群列表 ====================
+message GetUserGroupsReq {
+  int64 user_id = 1;
+  int32 status = 2;         // 状态筛选（0-全部, 1-仅正常的群）
+  PageInfo page = 3;
+}
+message GetUserGroupsResp {
+  repeated GroupInfo list = 1;
+  int32 total = 2;
+}
+
+// ==================== 检查用户是否在群内 ====================
+message IsInGroupReq {
+  int64 group_id = 1;
+  int64 user_id = 2;
+}
+message IsInGroupResp {
+  bool is_member = 1;
+  int32 role = 2;           // 角色（如果在群内）
+}
+
+// ==================== 批量检查用户是否在群内 ====================
+message BatchIsInGroupReq {
+  int64 group_id = 1;
+  repeated int64 user_ids = 2;
+}
+message BatchIsInGroupResp {
+  map<int64, bool> results = 1; // key: user_id, value: is_member
+}
+
+// ==================== 获取群成员ID列表（用于群发消息） ====================
+message GetGroupMemberIdsReq {
+  int64 group_id = 1;
+  int32 status = 2;         // 1-仅正常成员, 3-排除禁言成员
+}
+message GetGroupMemberIdsResp {
+  repeated int64 user_ids = 1;
+}
+
+// ==================== RPC 服务定义 ====================
+service Group {
+  // 基础功能
+  rpc CreateGroup(CreateGroupReq) returns(CreateGroupResp);           // 创建群
+  rpc JoinGroup(JoinGroupReq) returns(JoinGroupResp);                 // 加入群
+  rpc LeaveGroup(LeaveGroupReq) returns(LeaveGroupResp);              // 退出群
+  rpc DismissGroup(DismissGroupReq) returns(DismissGroupResp);        // 解散群
+  
+  // 成员管理
+  rpc KickMember(KickMemberReq) returns(KickMemberResp);              // 踢出成员
+  rpc SetAdmin(SetAdminReq) returns(SetAdminResp);                    // 设置管理员
+  rpc TransferOwner(TransferOwnerReq) returns(TransferOwnerResp);     // 转让群主
+  rpc MuteMember(MuteMemberReq) returns(MuteMemberResp);              // 禁言/解除禁言
+  
+  // 信息查询
+  rpc GetGroupInfo(GetGroupInfoReq) returns(GetGroupInfoResp);        // 获取群信息
+  rpc GetGroupsInfo(GetGroupsInfoReq) returns(GetGroupsInfoResp);     // 批量获取群信息
+  rpc GetGroupMembers(GetGroupMembersReq) returns(GetGroupMembersResp); // 获取群成员列表
+  rpc GetUserGroups(GetUserGroupsReq) returns(GetUserGroupsResp);     // 获取用户加入的群
+  
+  // 群信息修改
+  rpc UpdateGroupInfo(UpdateGroupInfoReq) returns(UpdateGroupInfoResp); // 更新群信息
+  
+  // 辅助功能（供其他RPC服务调用）
+  rpc IsInGroup(IsInGroupReq) returns(IsInGroupResp);                 // 检查是否在群内
+  rpc BatchIsInGroup(BatchIsInGroupReq) returns(BatchIsInGroupResp);  // 批量检查
+  rpc GetGroupMemberIds(GetGroupMemberIdsReq) returns(GetGroupMemberIdsResp); // 获取成员ID列表（群发消息用）
+}

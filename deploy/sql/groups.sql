@@ -1,0 +1,25 @@
+-- 群组主表
+CREATE TABLE `groups` (
+  `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `group_id` bigint(20) UNSIGNED NOT NULL DEFAULT '0' COMMENT '群ID(业务主键)',
+  `name` varchar(255) NOT NULL DEFAULT '' COMMENT '群名称',
+  `owner_uid` bigint(20) NOT NULL DEFAULT '0' COMMENT '群主ID',
+  `type` tinyint(4) NOT NULL DEFAULT '1' COMMENT '群类型:1-普通群,2-超大群',
+  `avatar` varchar(255) NOT NULL DEFAULT '' COMMENT '群头像',
+  `status` tinyint(4) NOT NULL DEFAULT '1' COMMENT '状态:0-已解散,1-正常,2-已封禁',
+  `description` varchar(500) NOT NULL DEFAULT '' COMMENT '群简介',
+  `notice` text COMMENT '群公告',
+  `max_members` int(11) NOT NULL DEFAULT '500' COMMENT '最大成员数',
+  `member_count` int(11) NOT NULL DEFAULT '0' COMMENT '当前成员数',
+  `join_type` tinyint(4) NOT NULL DEFAULT '1' COMMENT '加群方式:1-自由,2-需审批,3-禁止',
+  `invite_confirm` tinyint(4) NOT NULL DEFAULT '0' COMMENT '邀请确认:0-否,1-是',
+  `mute_all` tinyint(4) NOT NULL DEFAULT '0' COMMENT '全员禁言:0-否,1-是',
+  `create_time` bigint(20) NOT NULL DEFAULT '0' COMMENT '创建时间',
+  `update_time` bigint(20) NOT NULL DEFAULT '0' COMMENT '更新时间',
+  `deleted_at` bigint(20) NOT NULL DEFAULT '0' COMMENT '删除时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_group_id` (`group_id`),
+  KEY `idx_owner` (`owner_uid`),
+  KEY `idx_status` (`status`),
+  KEY `idx_create_time` (`create_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='群组表';

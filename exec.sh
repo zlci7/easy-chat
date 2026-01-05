@@ -4,6 +4,7 @@
 # 在 im_demo 根目录下执行
 goctl rpc protoc apps/user/rpc/user.proto --go_out=apps/user/rpc --go-grpc_out=apps/user/rpc --zrpc_out=apps/user/rpc
 goctl rpc protoc apps/msg/rpc/msg.proto --go_out=apps/msg/rpc --go-grpc_out=apps/msg/rpc --zrpc_out=apps/msg/rpc
+goctl rpc protoc apps/group/rpc/group.proto --go_out=apps/group/rpc --go-grpc_out=apps/group/rpc --zrpc_out=apps/group/rpc 
 
 
 goctl model mysql ddl -src="./deploy/sql/msg.sql" -dir="./apps/msg/models" -c
