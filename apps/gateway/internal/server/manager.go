@@ -52,6 +52,10 @@ func (m *ConnectionManager) AddUserConnection(uid int64, conn *websocket.Conn) {
 	m.connections[uid] = &UserConnection{
 		Conn: conn,
 	}
+	// 新增：启动心跳
+	StartHeartbeat(uid, conn, func() {
+		m.RemoveUserConnection(uid)
+	})
 }
 
 // 移除连接
