@@ -15,7 +15,7 @@ const (
 	PongWait     = 60 * time.Second    //pong等待时间
 )
 
-func StartHeartbeat(uid int64, conn *websocket.Conn, onClose func()) {
+func StartHeartbeat(uid int64, userConn *UserConnection, onClose func()) {
 	//定时发送Ping
 	go func() {
 		ticker := time.NewTicker(PingInterval)
@@ -27,8 +27,8 @@ func StartHeartbeat(uid int64, conn *websocket.Conn, onClose func()) {
 			// 这样更优雅，且 select 方便未来扩展退出信号
 			<-ticker.C
 
-			//发用ping消息
-			err := conn.WriteMessage(websocket.PingMessage, nil)
+			//发送ping消息（使用带锁的Write方法，避免并发写入）
+			err := userConn.Write(websocket.PingMessage, nil)
 			if err != nil {
 				logx.Errorf("send ping message to user %d error: %v", uid, err)
 				if onClose != nil {

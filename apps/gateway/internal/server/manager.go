@@ -49,11 +49,14 @@ func NewConnectionManager() *ConnectionManager {
 func (m *ConnectionManager) AddUserConnection(uid int64, conn *websocket.Conn) {
 	m.rwLock.Lock()
 	defer m.rwLock.Unlock()
-	m.connections[uid] = &UserConnection{
+
+	userConn := &UserConnection{
 		Conn: conn,
 	}
-	// 新增：启动心跳
-	StartHeartbeat(uid, conn, func() {
+	m.connections[uid] = userConn
+
+	// 新增：启动心跳（传入 UserConnection 以使用带锁的写入方法）
+	StartHeartbeat(uid, userConn, func() {
 		m.RemoveUserConnection(uid)
 	})
 }
