@@ -18,12 +18,12 @@ const (
 	USER_ENCRYPT_ERROR  = 200004 // 密码加密失败
 	USER_SAVE_ERROR     = 200005 // 用户保存失败
 	USER_ID_GET_ERROR   = 200006 // 用户ID获取失败
+	USER_NOT_LOGIN      = 200007 // 用户未登录
 
 	//消息传输
 	MSG_SAVE_ERROR = 300001 // 消息保存失败
 	SEQ_GET_ERROR  = 300002 // 序列号获取失败
 
-	// 群组模块错误码 (400xxx)
 	// 群组模块错误码 (400xxx)
 	CREATE_GROUP_ERROR              = 400001 // 创建群失败
 	GEN_GROUP_ID_ERROR              = 400002 // 生成群id失败

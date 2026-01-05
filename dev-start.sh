@@ -85,19 +85,25 @@ start_service() {
 }
 
 # 按顺序启动所有服务
-echo -e "${BLUE}[1/5] 启动 User RPC${NC}"
+echo -e "${BLUE}[1/7] 启动 User RPC${NC}"
 start_service "user-rpc" "apps/user/rpc" "etc/user.yaml" "user.go"
 
-echo -e "${BLUE}[2/5] 启动 Msg RPC${NC}"
+echo -e "${BLUE}[2/7] 启动 Msg RPC${NC}"
 start_service "msg-rpc" "apps/msg/rpc" "etc/msg.yaml" "msg.go"
 
-echo -e "${BLUE}[3/5] 启动 User API${NC}"
+echo -e "${BLUE}[3/7] 启动 Group RPC${NC}"
+start_service "group-rpc" "apps/group/rpc" "etc/group.yaml" "group.go"
+
+echo -e "${BLUE}[4/7] 启动 User API${NC}"
 start_service "user-api" "apps/user/api" "etc/user-api.yaml" "user.go"
 
-echo -e "${BLUE}[4/5] 启动 Msg API${NC}"
+echo -e "${BLUE}[5/7] 启动 Msg API${NC}"
 start_service "msg-api" "apps/msg/api" "etc/msg-api.yaml" "msg.go"
 
-echo -e "${BLUE}[5/5] 启动 Gateway${NC}"
+echo -e "${BLUE}[6/7] 启动 Group API${NC}"
+start_service "group-api" "apps/group/api" "etc/group-api.yaml" "group.go"
+
+echo -e "${BLUE}[7/7] 启动 Gateway${NC}"
 start_service "gateway" "apps/gateway" "etc/gateway.yaml" "gateway.go"
 
 echo ""
@@ -108,8 +114,10 @@ echo ""
 echo -e "${BLUE}服务列表：${NC}"
 echo -e "  • User RPC    : 0.0.0.0:8080"
 echo -e "  • Msg RPC     : 0.0.0.0:8090"
+echo -e "  • Group RPC   : 0.0.0.0:8092"
 echo -e "  • User API    : 0.0.0.0:8888"
 echo -e "  • Msg API     : 0.0.0.0:8091"
+echo -e "  • Group API   : 0.0.0.0:8093"
 echo -e "  • Gateway     : 0.0.0.0:8889"
 echo ""
 echo -e "${YELLOW}日志位置：${NC}"

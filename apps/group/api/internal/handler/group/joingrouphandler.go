@@ -9,6 +9,8 @@ import (
 	"easy-chat/apps/group/api/internal/logic/group"
 	"easy-chat/apps/group/api/internal/svc"
 	"easy-chat/apps/group/api/internal/types"
+	"easy-chat/pkg/resultx"
+
 	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
@@ -22,10 +24,6 @@ func JoinGroupHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := group.NewJoinGroupLogic(r.Context(), svcCtx)
 		resp, err := l.JoinGroup(&req)
-		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
-		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
-		}
+		resultx.HttpResult(r, w, resp, err)
 	}
 }

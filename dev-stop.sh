@@ -51,8 +51,10 @@ stop_service() {
 # 停止所有服务
 stop_service "User RPC" "apps/user/rpc/user.go" "user" "8080"
 stop_service "Msg RPC" "apps/msg/rpc/msg.go" "msg" "8090"
+stop_service "Group RPC" "apps/group/rpc/group.go" "group" "8092"
 stop_service "User API" "apps/user/api/user.go" "user" "8888"
 stop_service "Msg API" "apps/msg/api/msg.go" "msg" "8091"
+stop_service "Group API" "apps/group/api/group.go" "group" "8093"
 stop_service "Gateway" "apps/gateway/gateway.go" "gateway" "8889"
 
 sleep 2
@@ -60,13 +62,13 @@ sleep 2
 # 检查端口是否释放
 echo ""
 echo -e "${YELLOW}检查端口占用情况...${NC}"
-if ss -tlnp | grep -qE ':(8080|8090|8888|8091|8889)'; then
+if ss -tlnp | grep -qE ':(8080|8090|8092|8888|8091|8093|8889)'; then
     echo -e "${YELLOW}以下端口仍被占用：${NC}"
-    ss -tlnp | grep -E ':(8080|8090|8888|8091|8889)'
+    ss -tlnp | grep -E ':(8080|8090|8092|8888|8091|8093|8889)'
     echo ""
     
     # 提取所有 PID
-    pids=$(ss -tlnp | grep -E ':(8080|8090|8888|8091|8889)' | grep -oP 'pid=\K[0-9]+' | sort -u | tr '\n' ' ')
+    pids=$(ss -tlnp | grep -E ':(8080|8090|8092|8888|8091|8093|8889)' | grep -oP 'pid=\K[0-9]+' | sort -u | tr '\n' ' ')
     
     if [ ! -z "$pids" ]; then
         echo -e "${YELLOW}强制停止这些进程? [y/N]${NC}"
@@ -80,9 +82,9 @@ if ss -tlnp | grep -qE ':(8080|8090|8888|8091|8889)'; then
             done
             sleep 1
             echo ""
-            if ss -tlnp | grep -qE ':(8080|8090|8888|8091|8889)'; then
+            if ss -tlnp | grep -qE ':(8080|8090|8092|8888|8091|8093|8889)'; then
                 echo -e "${RED}部分端口仍被占用${NC}"
-                ss -tlnp | grep -E ':(8080|8090|8888|8091|8889)'
+                ss -tlnp | grep -E ':(8080|8090|8092|8888|8091|8093|8889)'
             else
                 echo -e "${GREEN}✓ 所有端口已释放${NC}"
             fi

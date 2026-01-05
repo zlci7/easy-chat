@@ -17,6 +17,7 @@ func init() {
 	message[USER_ENCRYPT_ERROR] = "密码加密失败"
 	message[USER_SAVE_ERROR] = "用户保存失败"
 	message[USER_ID_GET_ERROR] = "用户ID获取失败"
+	message[USER_NOT_LOGIN] = "用户未登录"
 
 	//消息传输
 	message[MSG_SAVE_ERROR] = "消息保存失败"
@@ -31,6 +32,7 @@ func init() {
 	message[GROUP_BANNED] = "该群已被封禁"
 	message[GROUP_MEMBER_LIMIT] = "群成员已满"
 	message[GROUP_UPDATE_MEMBER_COUNT_ERROR] = "更新群成员数失败"
+
 }
 
 func MapErrMsg(errcode uint32) string {

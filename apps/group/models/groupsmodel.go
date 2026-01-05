@@ -41,9 +41,8 @@ func NewGroupsModel(conn sqlx.SqlConn, c cache.CacheConf, opts ...cache.Option) 
 // 事务创建群组和群主：优化后的实现
 func (m *customGroupsModel) InsertWithGroupAndMember(ctx context.Context, group *Groups, member *GroupMembers) error {
 	return m.TransactCtx(ctx, func(ctx context.Context, session sqlx.Session) error {
-		// 1. 插入群组 - 使用生成的 SQL 和完整字段
-		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-			m.table, groupsRowsExpectAutoSet)
+		// 1. 插入群组 - 注意：groups 是保留字，必须用反引号
+		query := "insert into `groups` (`group_id`,`name`,`owner_uid`,`type`,`avatar`,`status`,`description`,`notice`,`max_members`,`member_count`,`join_type`,`invite_confirm`,`mute_all`,`create_time`,`update_time`,`deleted_at`) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
 
 		_, err := session.ExecCtx(ctx, query,
 			group.GroupId,       // 1
@@ -51,17 +50,17 @@ func (m *customGroupsModel) InsertWithGroupAndMember(ctx context.Context, group 
 			group.OwnerUid,      // 3
 			group.Type,          // 4
 			group.Avatar,        // 5
-			group.Status,        // 6 🔥 你漏了
-			group.Description,   // 7 🔥 你漏了
-			group.Notice,        // 8 🔥 你漏了
-			group.MaxMembers,    // 9 🔥 你漏了
-			group.MemberCount,   // 10 🔥 你漏了
-			group.JoinType,      // 11 🔥 你漏了
-			group.InviteConfirm, // 12 🔥 你漏了
-			group.MuteAll,       // 13 🔥 你漏了
+			group.Status,        // 6
+			group.Description,   // 7
+			group.Notice,        // 8
+			group.MaxMembers,    // 9
+			group.MemberCount,   // 10
+			group.JoinType,      // 11
+			group.InviteConfirm, // 12
+			group.MuteAll,       // 13
 			group.CreateTime,    // 14
-			group.UpdateTime,    // 15 🔥 你漏了
-			group.DeletedAt,     // 16 🔥 你漏了
+			group.UpdateTime,    // 15
+			group.DeletedAt,     // 16
 		)
 		if err != nil {
 			return err
@@ -88,7 +87,8 @@ func (m *customGroupsModel) IncrMemberCount(ctx context.Context, groupId uint64,
 	groupsGroupIdKey := fmt.Sprintf("%s%v", cacheGroupsGroupIdPrefix, groupId)
 
 	_, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (sql.Result, error) {
-		query := fmt.Sprintf("update %s set member_count = member_count + ? where group_id = ?", m.table)
+		// 注意：groups 是保留字，必须用反引号
+		query := "update `groups` set member_count = member_count + ? where group_id = ?"
 		return conn.ExecCtx(ctx, query, delta, groupId)
 	}, groupsGroupIdKey)
 
@@ -101,8 +101,8 @@ func (m *customGroupsModel) DecrMemberCount(ctx context.Context, groupId uint64,
 	groupsGroupIdKey := fmt.Sprintf("%s%v", cacheGroupsGroupIdPrefix, groupId)
 
 	_, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (sql.Result, error) {
-		query := fmt.Sprintf("update %s set member_count = member_count - ? where group_id = ? and member_count >= ?",
-			m.table)
+		// 注意：groups 是保留字，必须用反引号
+		query := "update `groups` set member_count = member_count - ? where group_id = ? and member_count >= ?"
 		return conn.ExecCtx(ctx, query, delta, groupId, delta)
 	}, groupsGroupIdKey)
 
@@ -143,8 +143,8 @@ func (m *customGroupsModel) AddMemberWithIncrCount(ctx context.Context, member *
 			}
 		}
 
-		// 2. 增加群成员数量
-		query := `UPDATE groups 
+		// 2. 增加群成员数量（注意：groups 是保留字，必须用反引号）
+		query := `UPDATE ` + "`groups`" + ` 
                  SET member_count = member_count + 1, update_time = ?
                  WHERE group_id = ?`
 		_, err := session.ExecCtx(ctx, query, member.UpdateTime, member.GroupId)

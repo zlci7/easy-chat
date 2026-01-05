@@ -9,6 +9,8 @@ import (
 	"easy-chat/apps/msg/api/internal/logic"
 	"easy-chat/apps/msg/api/internal/svc"
 	"easy-chat/apps/msg/api/internal/types"
+	"easy-chat/pkg/resultx"
+
 	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
@@ -22,10 +24,6 @@ func GetHistoryHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := logic.NewGetHistoryLogic(r.Context(), svcCtx)
 		resp, err := l.GetHistory(&req)
-		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
-		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
-		}
+		resultx.HttpResult(r, w, resp, err)
 	}
 }
