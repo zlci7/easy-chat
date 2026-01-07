@@ -28,6 +28,8 @@ func NewIsInGroupLogic(ctx context.Context, svcCtx *svc.ServiceContext) *IsInGro
 // 辅助功能（供其他RPC服务调用）
 func (l *IsInGroupLogic) IsInGroup(in *group.IsInGroupReq) (*group.IsInGroupResp, error) {
 	// todo: add your logic here and delete this line
+
+	//查询不到，不在群内
 	user, err := l.svcCtx.GroupMembersModel.FindOneByGroupIdUserId(l.ctx, uint64(in.GroupId), in.UserId)
 	if err != nil {
 		if err == models.ErrNotFound {
@@ -37,6 +39,15 @@ func (l *IsInGroupLogic) IsInGroup(in *group.IsInGroupReq) (*group.IsInGroupResp
 		}
 		return nil, xerr.NewErrCode(xerr.DB_ERROR)
 	}
+
+	// 已退出或被踢出，不算在群内
+	if user.Status == 0 || user.Status == 2 {
+		return &group.IsInGroupResp{
+			IsMember: false,
+		}, nil
+	}
+
+	//返回群成员消息
 	return &group.IsInGroupResp{
 		IsMember: true,
 		Role:     int32(user.Role),
