@@ -12,7 +12,7 @@ import (
 // 心跳配置
 const (
 	PingInterval = (PongWait * 9) / 10 //心跳间隔
-	PongWait     = 60 * time.Second    //pong等待时间
+	PongWait     = 600 * time.Second   //pong等待时间
 )
 
 func StartHeartbeat(uid int64, userConn *UserConnection, onClose func()) {

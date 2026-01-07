@@ -2,7 +2,7 @@ Name: group.rpc
 ListenOn: 0.0.0.0:8092
 Etcd:
   Hosts:
-  - 127.0.0.1:3379
+  - 127.0.0.1:2379
   Key: group.rpc
 
 

@@ -5,7 +5,7 @@ Port: 8093
 GroupRpc:
   Etcd:
     Hosts:
-    - 127.0.0.1:3379
+    - 127.0.0.1:2379
     Key: group.rpc
 
 Auth:

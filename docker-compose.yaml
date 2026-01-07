@@ -5,8 +5,8 @@ services:
     image: quay.io/coreos/etcd:v3.5.10
     container_name: etcd
     ports:
-      - "3379:2379"
-      - "3380:2380"
+      - "2379:2379"
+      - "2380:2380"
     environment:
       - ETCD_LISTEN_CLIENT_URLS=http://0.0.0.0:2379
     volumes:
@@ -48,40 +48,44 @@ services:
     networks:
       easy-chat:
 
-  # User RPC 服务（容器化）
-  user-rpc:
-    build:
-      context: .
-      dockerfile: apps/user/rpc/Dockerfile
-    container_name: user-rpc
-    ports:
-      - "8080:8080"
-    depends_on:
-      - etcd
-      - mysql
-      - redis
-    environment:
-      TZ: Asia/Shanghai
-    restart: always
-    networks:
-      easy-chat:
-
-  # User API 服务（容器化）
-  user-api:
-    build:
-      context: .
-      dockerfile: apps/user/api/Dockerfile
-    container_name: user-api
-    ports:
-      - "8888:8888"
-    depends_on:
-      - user-rpc
-    environment:
-      TZ: Asia/Shanghai
-    restart: always
-    networks:
-      easy-chat:
-
 networks:
   easy-chat:
     driver: bridge
+
+#   # User RPC 服务（容器化）
+#   user-rpc:
+#     build:
+#       context: .
+#       dockerfile: apps/user/rpc/Dockerfile
+#     container_name: user-rpc
+#     ports:
+#       - "8080:8080"
+#     depends_on:
+#       - etcd
+#       - mysql
+#       - redis
+#     environment:
+#       TZ: Asia/Shanghai
+#     restart: always
+#     networks:
+#       easy-chat:
+
+#   # User API 服务（容器化）
+#   user-api:
+#     build:
+#       context: .
+#       dockerfile: apps/user/api/Dockerfile
+#     container_name: user-api
+#     ports:
+#       - "8888:8888"
+#     depends_on:
+#       - user-rpc
+#     environment:
+#       TZ: Asia/Shanghai
+#     restart: always
+#     networks:
+#       easy-chat:
+
+# networks:
+#   easy-chat:
+#     driver: bridge

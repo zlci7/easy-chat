@@ -115,9 +115,9 @@ func (s *Subscriber) pushToGroup(ctx context.Context, groupId int64, fromUserId 
 
 	// 2. 推送给所有在线群成员（排除发送者，避免重复）
 	for _, id := range resp.UserIds {
-		if id == fromUserId {
-			continue // 跳过发送者本人
-		}
+		// if id == fromUserId {
+		// 	continue // 跳过发送者本人
+		// }
 		s.pushToUser(id, data)
 	}
 
