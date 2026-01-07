@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	"easy-chat/apps/group/rpc/group"
 	"easy-chat/apps/msg/models"
 	"easy-chat/apps/msg/rpc/internal/svc"
 	"easy-chat/apps/msg/rpc/msg"
@@ -36,6 +37,21 @@ func (l *SendMsgLogic) SendMsg(in *msg.SendMsgReq) (*msg.SendMsgResp, error) {
 	//1. 生成基础信息
 	msgId := uuid.New().String()
 	now := time.Now().UnixMilli()
+
+	//2. 参数验证,群聊必须要求用户在群中
+	if in.Type == 2 && in.GroupId != 0 {
+		//判断用户是否在群中
+		isInGroup, err := l.svcCtx.GroupRpc.IsInGroup(l.ctx, &group.IsInGroupReq{
+			UserId:  in.FromUserId,
+			GroupId: in.GroupId,
+		})
+		if err != nil {
+			logx.Errorf("check user is in group error: %v", err)
+		}
+		if !isInGroup.IsMember {
+			return nil, xerr.NewErrCode(xerr.GROUP_NOT_FOUND)
+		}
+	}
 
 	//改进：通过redis生成seqId，避免mysql自增id的缺点
 	//获取唯一redis key

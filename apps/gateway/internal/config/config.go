@@ -24,6 +24,9 @@ type Config struct {
 	//msgRPC 客户端配置（用于服务发现）
 	MsgRpc zrpc.RpcClientConf
 
+	//groupRPC 客户端配置（用于服务发现）
+	GroupRpc zrpc.RpcClientConf
+
 	// Redis 配置
 	Redis redis.RedisConf
 }

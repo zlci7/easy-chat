@@ -16,6 +16,9 @@ import (
 	"easy-chat/apps/gateway/internal/svc"
 	"easy-chat/apps/msg/rpc/msg"
 	"easy-chat/pkg/jwtx" // 复用阶段一写的 JWT 工具
+	"easy-chat/pkg/wsx"
+	"easy-chat/pkg/xerr"
+	// WebSocket 响应封装
 )
 
 var upgrader = websocket.Upgrader{
@@ -77,33 +80,61 @@ func WsHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 				// 1. 解析前端数据 (定义一个简单的结构体用于接收前端传参)
 				var input struct {
 					ToUserId int64  `json:"toUserId"`
+					GroupId  int64  `json:"groupId"`
 					Content  string `json:"content"`
 					Type     int64  `json:"type"`
 				}
-				json.Unmarshal(message, &input)
+				if err := json.Unmarshal(message, &input); err != nil {
+					logx.Errorf("Unmarshal message error: %v", err)
+					wsx.SendErrorWithCode(conn, xerr.REUQEST_PARAM_ERROR, "消息格式错误")
+					continue //处理下一条消息
+				}
+
+				// 🔥 新增：参数验证
+				if input.Type == 0 {
+					wsx.SendErrorWithCode(conn, xerr.REUQEST_PARAM_ERROR, "消息类型不能为空")
+					continue
+				}
+
+				if input.Content == "" {
+					wsx.SendErrorWithCode(conn, xerr.REUQEST_PARAM_ERROR, "消息内容不能为空")
+					continue
+				}
+
+				// 根据消息类型验证必填字段
+				switch input.Type {
+				case 1: // 单聊
+					if input.ToUserId == 0 {
+						wsx.SendErrorWithCode(conn, xerr.REUQEST_PARAM_ERROR, "接收人ID不能为空")
+						continue
+					}
+				case 2: // 群聊
+					if input.GroupId == 0 {
+						wsx.SendErrorWithCode(conn, xerr.REUQEST_PARAM_ERROR, "群组ID不能为空")
+						continue
+					}
+				default:
+					wsx.SendErrorWithCode(conn, xerr.REUQEST_PARAM_ERROR, "不支持的消息类型")
+					continue
+				}
 
 				// 2. 调用 Msg RPC
 				_, err = svcCtx.MsgRpc.SendMsg(context.Background(), &msg.SendMsgReq{
 					FromUserId: uid,
 					ToUserId:   input.ToUserId,
+					GroupId:    input.GroupId,
 					Content:    input.Content,
 					Type:       input.Type,
 				})
 
-				// 3. 返回响应给客户端
+				// 3. 返回响应给客户端（使用统一格式）
 				if err != nil {
 					// 发送失败，返回错误
-					conn.WriteJSON(map[string]interface{}{
-						"action": "error",
-						"error":  "发送消息失败",
-						"code":   500,
-					})
+					wsx.SendError(conn, err)
 					logx.Errorf("Send msg error: %v", err)
 				} else {
 					// 发送成功，返回 ACK
-					conn.WriteJSON(map[string]interface{}{
-						"action": "msgAck",
-					})
+					wsx.SendSuccess(conn, "msgAck", nil)
 				}
 			}
 

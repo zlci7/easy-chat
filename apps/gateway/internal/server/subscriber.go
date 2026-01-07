@@ -2,7 +2,11 @@ package server
 
 import (
 	"context"
+	"easy-chat/apps/group/rpc/group"
+	"easy-chat/apps/group/rpc/groupclient"
 	"easy-chat/pkg/model/mq"
+	"easy-chat/pkg/wsx"
+	"easy-chat/pkg/xerr"
 	"encoding/json"
 
 	"github.com/redis/go-redis/v9" // 依然需要这个库做底层支持
@@ -12,11 +16,12 @@ import (
 )
 
 type Subscriber struct {
-	rds     *redis.Client
-	connMgr *ConnectionManager
+	rds      *redis.Client
+	connMgr  *ConnectionManager
+	groupRpc groupclient.Group // 新增：Group RPC 客户端
 }
 
-func NewSubscriber(c zredis.RedisConf, connMgr *ConnectionManager) *Subscriber {
+func NewSubscriber(c zredis.RedisConf, connMgr *ConnectionManager, groupRpc groupclient.Group) *Subscriber {
 	// 1. 复用 go-zero 的配置 (RedisConf)
 	// 这样你就不用在 yaml 里写两遍 redis 配置了
 	rdb := redis.NewClient(&redis.Options{
@@ -27,8 +32,9 @@ func NewSubscriber(c zredis.RedisConf, connMgr *ConnectionManager) *Subscriber {
 	})
 
 	return &Subscriber{
-		rds:     rdb,
-		connMgr: connMgr,
+		rds:      rdb,
+		connMgr:  connMgr,
+		groupRpc: groupRpc,
 	}
 }
 
@@ -61,22 +67,59 @@ func (s *Subscriber) subscribeLoop() {
 			continue
 		}
 
-		// // 发送逻辑
-		// if err := s.connMgr.SendMsg(broadcastMsg.ToUserId, []byte(broadcastMsg.Content)); err != nil {
-		// 	// 这种通常是 debug 级别的日志，避免生产环境日志爆炸
-		// 	// logx.Debugf("User %d not on this node", broadcastMsg.UserId)
-		// }
+		// 发送逻辑：使用统一的 WebSocket 响应格式
+		// 将消息封装为标准格式：{action: "newMsg", code: 0, msg: "success", data: {...}}
+		wsMsg := &wsx.WsMessage{
+			Action: "newMsg",
+			Code:   xerr.OK,
+			Msg:    "success",
+			Data:   broadcastMsg,
+		}
 
-		// 发送逻辑：把完整的消息结构体发送给客户端
-		jsonData, err := json.Marshal(broadcastMsg)
+		jsonData, err := json.Marshal(wsMsg)
 		if err != nil {
 			logx.Errorf("[Redis Sub] Marshal error: %v", err)
 			continue
 		}
 
-		if err := s.connMgr.SendMsg(broadcastMsg.ToUserId, jsonData); err != nil {
-			// 用户可能不在当前节点，这是正常的
-			// logx.Debugf("User %d not on this node", broadcastMsg.ToUserId)
+		switch broadcastMsg.Type {
+		case 1:
+			s.pushToUser(broadcastMsg.ToUserId, jsonData)
+		case 2:
+			s.pushToGroup(ctx, broadcastMsg.GroupId, broadcastMsg.FromUserId, jsonData)
+		default:
+			logx.Errorf("[Redis Sub] Invalid message type: %d", broadcastMsg.Type)
 		}
 	}
+}
+
+// 推送给单个用户
+func (s *Subscriber) pushToUser(userId int64, data []byte) {
+	if err := s.connMgr.SendMsg(userId, data); err != nil {
+		// 用户不在当前节点，正常情况
+		// logx.Debugf("User %d not on this node", userId)
+	}
+}
+
+// 推送给群组所有成员
+func (s *Subscriber) pushToGroup(ctx context.Context, groupId int64, fromUserId int64, data []byte) {
+	// 1. 调用 Group RPC 获取群成员列表
+	resp, err := s.groupRpc.GetGroupMemberIds(ctx, &group.GetGroupMemberIdsReq{
+		GroupId: groupId,
+		Status:  1,
+	})
+	if err != nil {
+		logx.Errorf("[Redis Sub] Get group members failed: %v", err)
+		return
+	}
+
+	// 2. 推送给所有在线群成员（排除发送者，避免重复）
+	for _, id := range resp.UserIds {
+		if id == fromUserId {
+			continue // 跳过发送者本人
+		}
+		s.pushToUser(id, data)
+	}
+
+	logx.Infof("[Redis Sub] Pushed group msg to %d members (group=%d)", len(resp.UserIds)-1, groupId)
 }

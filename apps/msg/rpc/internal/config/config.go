@@ -16,4 +16,6 @@ type Config struct {
 
 	//Redis连接配置
 	RedisPubSub redis.RedisConf
+
+	GroupRpc zrpc.RpcClientConf
 }

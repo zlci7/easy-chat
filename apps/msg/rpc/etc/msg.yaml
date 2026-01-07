@@ -20,3 +20,11 @@ RedisPubSub:
   Host: 127.0.0.1:16379
   Type: node
   Pass: "1234"
+
+
+
+GroupRpc:
+  Etcd:
+    Hosts:
+    - 127.0.0.1:3379
+    Key: group.rpc

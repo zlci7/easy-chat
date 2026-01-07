@@ -1,11 +1,13 @@
 package svc
 
 import (
+	"easy-chat/apps/group/rpc/groupclient"
 	"easy-chat/apps/msg/models"
 	"easy-chat/apps/msg/rpc/internal/config"
 
 	"github.com/zeromicro/go-zero/core/stores/redis"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
+	"github.com/zeromicro/go-zero/zrpc"
 )
 
 type ServiceContext struct {
@@ -15,6 +17,8 @@ type ServiceContext struct {
 	MsgModel models.MsgModel
 
 	RedisClient *redis.Redis
+
+	GroupRpc groupclient.Group
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -31,5 +35,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
 
 		//实例化Redis客户端
 		RedisClient: rds,
+		GroupRpc:    groupclient.NewGroup(zrpc.MustNewClient(c.GroupRpc)),
 	}
 }

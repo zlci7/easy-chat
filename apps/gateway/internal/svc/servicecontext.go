@@ -6,6 +6,7 @@ package svc
 import (
 	"easy-chat/apps/gateway/internal/config"
 	"easy-chat/apps/gateway/internal/server"
+	"easy-chat/apps/group/rpc/groupclient"
 	"easy-chat/apps/msg/rpc/msgclient"
 	"easy-chat/apps/user/rpc/userclient"
 
@@ -23,12 +24,18 @@ type ServiceContext struct {
 
 	// Msg RPC 客户端（用于服务发现和调用）
 	MsgRpc msgclient.Msg
+
+	//Group RPC 客户端（用于服务发现和调用）
+	GroupRpc groupclient.Group
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
 	connmgr := server.NewConnectionManager()
+	// 初始化 Group RPC 客户端
+	groupRpc := groupclient.NewGroup(zrpc.MustNewClient(c.GroupRpc))
 
-	subscriber := server.NewSubscriber(c.Redis, connmgr)
+	// 传入 Group RPC
+	subscriber := server.NewSubscriber(c.Redis, connmgr, groupRpc)
 	subscriber.Start()
 
 	return &ServiceContext{
@@ -41,5 +48,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		UserRpc: userclient.NewUser(zrpc.MustNewClient(c.UserRpc)),
 
 		MsgRpc: msgclient.NewMsg(zrpc.MustNewClient(c.MsgRpc)),
+
+		GroupRpc: groupRpc,
 	}
 }

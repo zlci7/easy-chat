@@ -13,6 +13,12 @@ MsgRpc:
     Hosts:
     - 127.0.0.1:3379
     Key: msg.rpc
+
+GroupRpc:
+  Etcd:
+    Hosts:
+    - 127.0.0.1:3379
+    Key: group.rpc
     
 
 Jwt:
