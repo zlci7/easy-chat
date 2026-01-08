@@ -5,6 +5,12 @@ Etcd:
   - 127.0.0.1:2379
   Key: user.rpc
 
+# Jaeger 链路追踪配置
+Telemetry:
+  Name: user.rpc
+  Endpoint: http://127.0.0.1:14268/api/traces
+  Sampler: 1.0  # 采样率 1.0 表示 100% 采样，生产环境建议调低
+  Batcher: jaeger  # 使用 jaeger 导出器
 
 # MySQL 配置（开发模式：访问宿主机 Docker 映射端口）
 # 格式: 用户:密码@tcp(host:port)/数据库名?参数...
@@ -15,3 +21,4 @@ Cache:
   - Host: 127.0.0.1:16379
     Type: node
     Pass: "1234"
+    PingTimeout: 1s

@@ -2,6 +2,13 @@ Name: gateway
 Host: 0.0.0.0
 Port: 8889
 
+# Jaeger 链路追踪配置
+Telemetry:
+  Name: gateway
+  Endpoint: http://127.0.0.1:14268/api/traces
+  Sampler: 1.0
+  Batcher: jaeger
+
 UserRpc:
   Etcd:
     Hosts:
@@ -30,5 +37,6 @@ Redis:
   Host: 127.0.0.1:16379
   Type: node
   Pass: "1234"
+  PingTimeout: 1s
 
   

@@ -2,6 +2,13 @@ Name: group-api
 Host: 0.0.0.0
 Port: 8093
 
+# Jaeger 链路追踪配置
+Telemetry:
+  Name: group-api
+  Endpoint: http://127.0.0.1:14268/api/traces
+  Sampler: 1.0
+  Batcher: jaeger
+
 GroupRpc:
   Etcd:
     Hosts:

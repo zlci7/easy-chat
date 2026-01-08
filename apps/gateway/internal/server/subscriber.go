@@ -28,7 +28,6 @@ func NewSubscriber(c zredis.RedisConf, connMgr *ConnectionManager, groupRpc grou
 		Addr:     c.Host,
 		Password: c.Pass,
 		DB:       1,
-		// 生产环境可能还需要配置 PoolSize 等，但在 Sub 模式下连接数只需 1 个
 	})
 
 	return &Subscriber{
