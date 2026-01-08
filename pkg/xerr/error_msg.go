@@ -9,6 +9,7 @@ func init() {
 	message[REUQEST_PARAM_ERROR] = "参数错误"
 	message[TOKEN_EXPIRE_ERROR] = "token失效，请重新登陆"
 	message[DB_ERROR] = "数据库繁忙,请稍后再试"
+	message[TOO_MANY_REQUESTS] = "请求过于频繁,请稍后再试"
 
 	// --- 用户模块错误 200xxx ---
 	message[USER_ALREADY_EXISTS] = "用户已注册"

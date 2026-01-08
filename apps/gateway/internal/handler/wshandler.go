@@ -7,9 +7,11 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/gorilla/websocket"
+	"github.com/zeromicro/go-zero/core/limit"
 	"github.com/zeromicro/go-zero/core/logx"
 
 	"easy-chat/apps/gateway/internal/server"
@@ -77,6 +79,18 @@ func WsHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 				if err != nil {
 					break
 				}
+
+				//❗加入限流逻辑
+				code, err := svcCtx.Limiter.Take(fmt.Sprintf("userId:%d", uid))
+				if err != nil {
+					logx.Errorf("Limiter error: %v", err)
+					// 限流器出错时，可以选择放行或拒绝
+				}
+				if code == limit.OverQuota {
+					wsx.SendErrorWithCode(conn, xerr.TOO_MANY_REQUESTS, "请求过于频繁")
+					continue //丢掉这条消息，不进行处理
+				}
+
 				// 1. 解析前端数据 (定义一个简单的结构体用于接收前端传参)
 				var input struct {
 					ToUserId int64  `json:"toUserId"`

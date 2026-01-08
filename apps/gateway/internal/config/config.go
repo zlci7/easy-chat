@@ -17,6 +17,10 @@ type Config struct {
 		AccessSecret string
 		AccessExpire int64
 	}
+	Limit struct {
+		Seconds int
+		Quota   int
+	}
 
 	// userRPC 客户端配置（用于服务发现）
 	UserRpc zrpc.RpcClientConf

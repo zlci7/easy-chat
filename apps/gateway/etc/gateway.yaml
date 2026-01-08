@@ -39,4 +39,6 @@ Redis:
   Pass: "1234"
   PingTimeout: 1s
 
-  
+Limit:
+  Seconds:1
+  Quota:10

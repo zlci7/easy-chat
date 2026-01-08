@@ -10,6 +10,8 @@ import (
 	"easy-chat/apps/msg/rpc/msgclient"
 	"easy-chat/apps/user/rpc/userclient"
 
+	"github.com/zeromicro/go-zero/core/limit"
+	"github.com/zeromicro/go-zero/core/stores/redis"
 	"github.com/zeromicro/go-zero/zrpc"
 )
 
@@ -27,16 +29,24 @@ type ServiceContext struct {
 
 	//Group RPC 客户端（用于服务发现和调用）
 	GroupRpc groupclient.Group
+
+	Limiter *limit.PeriodLimit
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
 	connmgr := server.NewConnectionManager()
+	//初始化Redis客户端
+	rds := redis.MustNewRedis(c.Redis)
+
 	// 初始化 Group RPC 客户端
 	groupRpc := groupclient.NewGroup(zrpc.MustNewClient(c.GroupRpc))
 
 	// 传入 Group RPC
 	subscriber := server.NewSubscriber(c.Redis, connmgr, groupRpc)
 	subscriber.Start()
+
+	//传入限流器
+	limiter := limit.NewPeriodLimit(c.Limit.Seconds, c.Limit.Quota, rds, "easy-chat:limit:")
 
 	return &ServiceContext{
 		Config: c,
@@ -50,5 +60,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		MsgRpc: msgclient.NewMsg(zrpc.MustNewClient(c.MsgRpc)),
 
 		GroupRpc: groupRpc,
+		Limiter:  limiter,
 	}
 }

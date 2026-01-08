@@ -10,6 +10,7 @@ const (
 	REUQEST_PARAM_ERROR = 100002 // 参数错误
 	TOKEN_EXPIRE_ERROR  = 100003 // Token过期
 	DB_ERROR            = 100004 // 数据库错误
+	TOO_MANY_REQUESTS   = 100005
 
 	// 用户模块错误码 (200xxx)
 	USER_ALREADY_EXISTS = 200001 // 用户已注册
